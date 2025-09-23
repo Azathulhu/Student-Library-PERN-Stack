@@ -1,0 +1,93 @@
+import React, { useState } from "react";
+import api from "../api";
+
+export default function Profile({ user, setUser }) {
+  const [form, setForm] = useState({
+    name: user.name,
+    grade_level_strand: user.grade_level_strand || "",
+    contact_number: user.contact_number || "",
+  });
+
+  const save = async () => {
+    try {
+      const { data } = await api.put("/users/me", form);
+      setUser(data);
+      alert("Profile saved");
+    } catch (err) {
+      alert(err?.response?.data?.error || "Failed");
+    }
+  };
+
+  return (
+    <div
+      className="flex items-center justify-center min-h-screen p-6"
+      style={{
+        backgroundImage:
+          'url(https://scontent.fcrk2-1.fna.fbcdn.net/v/t39.30808-6/517793024_122237938226024229_2789074869652155638_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=cc71e4&_nc_eui2=AeH8AR4llbpnvTKDgQd1XzkqfIpVrCQwmOx8ilWsJDCY7AllMuT19eAKUiPwazODqjPTXX2ZFpI09Zr_VTjzm1F4&_nc_ohc=7HxlyOmyV2gQ7kNvwFSAufp&_nc_oc=AdnZ7sOJ_eUBjhVaaEPoOLXWiIMaOOWk6Z5QRUNH6qlB0KvifejgK0kxoiwUfvNJYY&_nc_zt=23&_nc_ht=scontent.fcrk2-1.fna&_nc_gid=aAhq6ZjqUwpyeDdJprc0YA&oh=00_AfZCbOYP6NxBipRhZeVyqn6ip5psCdwi-mQdjYMI7st_Jw&oe=68C9F54B)',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="bg-white/90 backdrop-blur-sm rounded-bubbly shadow-bubbly p-8 w-full max-w-lg">
+        <h1 className="text-3xl font-bold mb-6 text-center text-bubbly-deep">Profile</h1>
+
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-bubbly-dark mb-1">LRN</label>
+          <input
+            value={user.lrn}
+            disabled
+            className="w-full p-3 rounded-bubbly shadow-bubbly border-none bg-gray-100"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-bubbly-dark mb-1">Email</label>
+          <input
+            value={user.email}
+            disabled
+            className="w-full p-3 rounded-bubbly shadow-bubbly border-none bg-gray-100"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-bubbly-dark mb-1">Full Name</label>
+          <input
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="w-full p-3 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-bubbly-dark mb-1">Grade Level - Strand</label>
+          <input
+            value={form.grade_level_strand}
+            onChange={(e) =>
+              setForm({ ...form, grade_level_strand: e.target.value })
+            }
+            className="w-full p-3 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition"
+          />
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-bubbly-dark mb-1">Contact Number</label>
+          <input
+            value={form.contact_number}
+            onChange={(e) =>
+              setForm({ ...form, contact_number: e.target.value })
+            }
+            className="w-full p-3 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition"
+          />
+        </div>
+
+        <button
+          onClick={save}
+          className="w-full bg-bubbly-blue hover:bg-bubbly-deep text-white py-3 rounded-bubbly font-bold transition"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+
+/* Tailwind base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom global styles for bubbly, blue theme */
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, #E3F2FD 0%, #B3E5FC 100%);
+  min-height: 100vh;
+  color: #222B45;
+}
+
+.bubbly-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle at 20% 30%, #4FC3F7 0 80px, transparent 120px),
+              radial-gradient(circle at 80% 20%, #1976D2 0 60px, transparent 100px),
+              radial-gradient(circle at 60% 80%, #B3E5FC 0 100px, transparent 160px);
+  opacity: 0.18;
+}
