@@ -5,5 +5,9 @@ import App from './App';
 import './index.css';
 
 createRoot(document.getElementById('root')).render(
-  <React.StrictMode><BrowserRouter basename="/"><App/></BrowserRouter></React.StrictMode>
+  <React.StrictMode>
+    <Router>
+      <App />
+    </Router>
+  </React.StrictMode>
 );
