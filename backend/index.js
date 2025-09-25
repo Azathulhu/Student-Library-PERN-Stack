@@ -15,13 +15,6 @@ app.use(express.json());
 
 app.get('/api/ping', (req, res) => res.json({ ok: true }));
 
-app.use('/api/auth', authRoutes);
-app.use('/api/books', bookRoutes);
-app.use('/api/users', userRoutes);
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
-
 app.get('/api/db-test', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT NOW()');
@@ -31,3 +24,12 @@ app.get('/api/db-test', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.use('/api/auth', authRoutes);
+app.use('/api/books', bookRoutes);
+app.use('/api/users', userRoutes);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+
+
