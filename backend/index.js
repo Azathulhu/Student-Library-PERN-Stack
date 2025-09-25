@@ -8,7 +8,9 @@ const bookRoutes = require('./routes/books');
 const userRoutes = require('./routes/users');
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json());
 
 app.get('/api/ping', (req, res) => res.json({ ok: true }));
