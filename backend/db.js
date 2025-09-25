@@ -1,17 +1,10 @@
-// backend/db.js
-const { Pool } = require('pg');
+// backend/db-pg.js
 require('dotenv').config();
+const { Pool } = require('pg');
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASS,
-  port: process.env.DB_PORT,
+  connectionString: process.env.DATABASE_URL, // or build from PGHOST etc
+  ssl: { rejectUnauthorized: false } // use for many cloud providers — Neon handles TLS
 });
 
-pool.on('error', (err) => {
-  console.error('Unexpected PG error', err);
-});
-
-module.exports = pool;
+module.exports = { pool };
