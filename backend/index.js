@@ -31,6 +31,18 @@ app.use('/api/books', bookRoutes);
 app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 5000;
+// Test route to check token working
+app.get('/api/test-token', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'No token' });
+  const token = auth.split(' ')[1];
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ ok: true, tokenPayload: payload });
+  } catch (err) {
+    res.status(401).json({ error: 'Invalid token', message: err.message });
+  }
+});
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
 
