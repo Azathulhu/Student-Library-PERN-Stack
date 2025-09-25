@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
@@ -14,7 +14,6 @@ import "./index.css";
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -25,21 +24,29 @@ function App() {
           setUser(data);
         } catch (err) {
           console.error(err);
-          localStorage.removeItem("token");
+          localStorage.removeItem("token"); // remove invalid token
           setUser(null);
         } finally {
           setLoading(false);
         }
       })();
     } else {
-      setLoading(false);
+      setLoading(false); // allow public routes to render
     }
   }, []);
+
+  // Helper function to store token after login
+  const handleLogin = (token, userData) => {
+    localStorage.setItem("token", token);
+    setUser(userData);
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-bubbly-bg">
-        <div className="text-bubbly-deep text-xl font-bold animate-pulse">Loading...</div>
+        <div className="text-bubbly-deep text-xl font-bold animate-pulse">
+          Loading...
+        </div>
       </div>
     );
   }
@@ -47,14 +54,13 @@ function App() {
   return (
     <div className="relative min-h-screen font-nunito bg-bubbly-bg">
       <div className="bubbly-bg"></div>
-      {/* Show navbar only when logged in */}
       {user && <Navbar user={user} />}
       <div className="container mx-auto px-4 py-8 z-10 relative">
         <Routes>
           {/* Auth routes */}
           <Route
             path="/login"
-            element={user ? <Navigate to="/dashboard" /> : <Login setUser={setUser} />}
+            element={user ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />}
           />
           <Route
             path="/signup"
