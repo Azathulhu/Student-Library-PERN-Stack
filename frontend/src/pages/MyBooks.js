@@ -6,6 +6,7 @@ export default function MyBooks() {
   const [items, setItems] = useState([]);
   const [activeTab, setActiveTab] = useState("pending");
 
+  // Search + pagination states for each tab
   const [queries, setQueries] = useState({ pending: "", borrowed: "", returned: "" });
   const [pages, setPages] = useState({ pending: 1, borrowed: 1, returned: 1 });
   const limit = 5;
@@ -83,9 +84,20 @@ export default function MyBooks() {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-6">
-      <div className="w-full max-w-4xl space-y-6">
-        <h1 className="text-3xl font-bold mb-6 text-center text-bubbly-deep">My Books</h1>
+    <div
+      className="flex flex-col items-center min-h-screen p-6 bg-blue-50"
+      style={{
+        backgroundImage:
+          'url(https://scontent.fcrk2-1.fna.fbcdn.net/v/t39.30808-6/517793024_122237938226024229_2789074869652155638_n.jpg?... )',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="w-full max-w-6xl space-y-6">
+        <h1 className="text-4xl font-extrabold mb-6 text-center text-blue-700 drop-shadow-lg">
+          My Books
+        </h1>
 
         {/* Tabs */}
         <div className="flex justify-center space-x-4 mb-6">
@@ -93,7 +105,7 @@ export default function MyBooks() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 rounded-bubbly font-semibold transition ${
+              className={`px-4 py-2 rounded-full font-semibold transition ${
                 activeTab === tab.key
                   ? "bg-blue-500 text-white shadow-md"
                   : "bg-gray-200 hover:bg-gray-300"
@@ -104,27 +116,67 @@ export default function MyBooks() {
           ))}
         </div>
 
-        {/* Search */}
-        <input
-          type="text"
-          placeholder={`Search ${activeTab} books...`}
-          value={queries[activeTab]}
-          onChange={(e) => setQueries({ ...queries, [activeTab]: e.target.value })}
-          className="w-full p-2 border rounded-bubbly shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
-        />
+        {/* Search bar */}
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder={`Search ${activeTab} books...`}
+            value={queries[activeTab]}
+            onChange={(e) =>
+              setQueries({ ...queries, [activeTab]: e.target.value })
+            }
+            className="w-full p-3 border rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
 
-        {/* Book Grid using BookCard */}
+        {/* Book Grid */}
         {shownBooks.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {shownBooks.map((b) => (
-              <BookCard
-                key={b.borrow_id}
-                book={b}
-                activeTab={activeTab}
-                onCancel={cancelPending}
-                onReturn={doReturn}
-                onDelete={deleteReturned}
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {shownBooks.map((i) => (
+              <div
+                key={i.borrow_id}
+                className={`transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1 rounded-xl p-2 ${
+                  activeTab === "pending"
+                    ? "bg-yellow-100/70"
+                    : activeTab === "borrowed"
+                    ? "bg-white/90"
+                    : "bg-green-100/70"
+                }`}
+              >
+                <BookCard book={i} />
+                <div className="mt-2 flex justify-between items-center">
+                  <span className="text-sm text-gray-700">
+                    {activeTab === "pending" && `Requested at: ${i.requested_at}`}
+                    {activeTab === "borrowed" && `Due: ${i.due_date}`}
+                    {activeTab === "returned" && `Returned at: ${i.returned_at}`}
+                  </span>
+
+                  {activeTab === "pending" && (
+                    <button
+                      onClick={() => cancelPending(i.borrow_id)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-full font-bold transition"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  {activeTab === "borrowed" && (
+                    <button
+                      onClick={() => doReturn(i.borrow_id)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full font-bold transition"
+                    >
+                      Return
+                    </button>
+                  )}
+                  {activeTab === "returned" && (
+                    <button
+                      onClick={() => deleteReturned(i.borrow_id)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-full font-bold transition"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         ) : (
@@ -133,10 +185,12 @@ export default function MyBooks() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center space-x-2 mt-4">
+          <div className="flex justify-center space-x-2 mt-6">
             <button
               disabled={pages[activeTab] === 1}
-              onClick={() => setPages({ ...pages, [activeTab]: pages[activeTab] - 1 })}
+              onClick={() =>
+                setPages({ ...pages, [activeTab]: pages[activeTab] - 1 })
+              }
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               Prev
@@ -146,7 +200,9 @@ export default function MyBooks() {
             </span>
             <button
               disabled={pages[activeTab] === totalPages}
-              onClick={() => setPages({ ...pages, [activeTab]: pages[activeTab] + 1 })}
+              onClick={() =>
+                setPages({ ...pages, [activeTab]: pages[activeTab] + 1 })
+              }
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               Next
