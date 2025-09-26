@@ -134,7 +134,7 @@ export default function MyBooks() {
             shownBooks.map((i) => (
               <div
                 key={i.borrow_id}
-                className={`p-4 rounded-bubbly shadow-sm flex gap-4 items-center ${
+                className={`p-4 rounded-bubbly shadow-sm flex justify-between items-center ${
                   activeTab === "pending"
                     ? "bg-yellow-100/70"
                     : activeTab === "borrowed"
@@ -142,64 +142,45 @@ export default function MyBooks() {
                     : "bg-green-100/70"
                 }`}
               >
-                {/* Book image */}
-                <div className="w-20 h-28 flex-shrink-0 bg-gray-200 rounded overflow-hidden flex items-center justify-center">
-                  {i.photo_url ? (
-                    <img
-                      src={i.photo_url}
-                      alt={i.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-xs text-gray-400">No Image</span>
-                  )}
-                </div>
-
-                {/* Book info */}
-                <div className="flex-1">
-                  <div className="font-bold text-blue-900">{i.title}</div>
-                  <div className="text-sm text-blue-700">{i.author}</div>
-                  {i.description && (
-                    <p className="text-xs text-gray-600 mt-1">
-                      {i.description.length > 120
-                        ? i.description.slice(0, 120) + "…"
-                        : i.description}
-                    </p>
-                  )}
-                  <div className="mt-3 text-xs text-gray-600">
-                    {activeTab === "pending" && `Requested at: ${i.requested_at}`}
-                    {activeTab === "borrowed" && `Due: ${i.due_date}`}
-                    {activeTab === "returned" && `Returned at: ${i.returned_at}`}
+                <div>
+                  <div className="font-bold">{i.title}</div>
+                  <div className="text-sm text-bubbly-dark">
+                    {activeTab === "pending" && (
+                      <span>Requested at: {i.requested_at}</span>
+                    )}
+                    {activeTab === "borrowed" && (
+                      <span>Due: {i.due_date}</span>
+                    )}
+                    {activeTab === "returned" && (
+                      <span>Returned at: {i.returned_at}</span>
+                    )}
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex flex-col gap-2">
-                  {activeTab === "pending" && (
-                    <button
-                      onClick={() => cancelPending(i.borrow_id)}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                  {activeTab === "borrowed" && (
-                    <button
-                      onClick={() => doReturn(i.borrow_id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
-                    >
-                      Return
-                    </button>
-                  )}
-                  {activeTab === "returned" && (
-                    <button
-                      onClick={() => deleteReturned(i.borrow_id)}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
-                    >
-                      Delete
-                    </button>
-                  )}
-                </div>
+                {activeTab === "pending" && (
+                  <button
+                    onClick={() => cancelPending(i.borrow_id)}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                  >
+                    Cancel
+                  </button>
+                )}
+                {activeTab === "borrowed" && (
+                  <button
+                    onClick={() => doReturn(i.borrow_id)}
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                  >
+                    Return
+                  </button>
+                )}
+                {activeTab === "returned" && (
+                  <button
+                    onClick={() => deleteReturned(i.borrow_id)}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             ))
           ) : (
