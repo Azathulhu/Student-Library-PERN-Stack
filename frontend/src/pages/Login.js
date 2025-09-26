@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 export default function Login({ onLogin }) {
   const [lrn, setLrn] = useState("");
   const [password, setPassword] = useState("");
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
   const nav = useNavigate();
 
   const submit = async (e) => {
@@ -21,45 +20,36 @@ export default function Login({ onLogin }) {
     }
   };
 
-  // Parallax effect for background
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setOffset({
-        x: (window.innerWidth / 2 - e.clientX) / 50,
-        y: (window.innerHeight / 2 - e.clientY) / 50,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center min-h-screen w-full overflow-hidden"
-      style={{
-        backgroundImage: "url(/schooBg.jpg)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        transform: `translate(${offset.x}px, ${offset.y}px)`,
-        transition: "transform 0.1s ease-out",
-      }}
-    >
-      {/* Animated gradient overlay */}
+    <div className="fixed inset-0 flex items-center justify-center min-h-screen w-full overflow-hidden">
+      {/* Animated Gradient Background */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-200/10 blur-3xl"
-        animate={{ opacity: [0.7, 0.9, 0.7], scale: [1, 1.03, 1] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(135deg, #a0c4ff, #70a1ff, #3c69ff)`,
+          backgroundSize: "600% 600%",
+        }}
+        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
       />
 
+      {/* Soft overlay blur */}
+      <motion.div
+        className="absolute inset-0 bg-white/10 backdrop-blur-xl"
+        animate={{ opacity: [0.6, 0.85, 0.6] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Login Form */}
       <motion.form
         onSubmit={submit}
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative w-full max-w-md bg-white/10 rounded-3xl shadow-2xl px-8 py-10 flex flex-col items-center z-10 backdrop-blur-2xl border border-white/20"
+        className="relative w-full max-w-md bg-white/20 rounded-2xl shadow-2xl px-8 py-10 flex flex-col items-center z-10 border border-white/30"
       >
         <motion.div
-          className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center mb-5 shadow-lg"
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mb-4 shadow-lg"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
@@ -67,10 +57,8 @@ export default function Login({ onLogin }) {
           <img src="/schoolLogo.jpg" alt="Logo" className="w-full h-full rounded-full" />
         </motion.div>
 
-        <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-2 tracking-wide text-center">
-          Welcome Back
-        </h2>
-        <p className="text-gray-200 mb-6 text-center text-sm md:text-base">
+        <h2 className="text-3xl font-extrabold text-white mb-2 tracking-wide">Welcome Back</h2>
+        <p className="text-gray-200 mb-6 text-center">
           Sign in to your BCSHS Library account
         </p>
 
