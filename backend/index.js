@@ -37,7 +37,7 @@ const buildPath = path.join(__dirname, '../frontend/build');
 app.use(express.static(buildPath));
 
 // For any route not handled by API, send back index.html
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
