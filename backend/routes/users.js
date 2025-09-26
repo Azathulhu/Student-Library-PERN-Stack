@@ -53,7 +53,7 @@ router.get('/notifications', authMiddleware, async (req, res) => {
 });
 
 /** Admin: send notification to user */
-router.post('/:id/notify', authMiddleware, async (req, res) => {
+/*router.post('/:id/notify', authMiddleware, async (req, res) => {
   // only admin/librarian can send - check role in token
   if (req.user.role !== 'admin' && req.user.role !== 'librarian')
     return res.status(403).json({ error: 'Forbidden' });
@@ -67,6 +67,35 @@ router.post('/:id/notify', authMiddleware, async (req, res) => {
       [targetUser, title, message]
     );
     await logActivity(req.user.id, 'send_notification', { user: targetUser });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});*/
+/** Admin: send notification to user by LRN */
+router.post('/notify', authMiddleware, async (req, res) => {
+  // only admin/librarian can send
+  if (req.user.role !== 'admin' && req.user.role !== 'librarian')
+    return res.status(403).json({ error: 'Forbidden' });
+
+  const { lrn, title, message } = req.body;
+  if (!lrn) return res.status(400).json({ error: 'LRN is required' });
+
+  try {
+    // find user by LRN
+    const { rows: users } = await pool.query('SELECT id FROM users WHERE lrn=$1', [lrn]);
+    if (!users.length) return res.status(404).json({ error: 'User with this LRN not found' });
+
+    const user_id = users[0].id;
+
+    // insert notification
+    await pool.query(
+      'INSERT INTO notifications (user_id, title, message) VALUES ($1, $2, $3)',
+      [user_id, title, message]
+    );
+    await logActivity(req.user.id, 'send_notification', { user: user_id });
+
     res.json({ ok: true });
   } catch (err) {
     console.error(err);
