@@ -1,16 +1,16 @@
 import React from "react";
 
 export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin }) {
-  // Limit description length for display
   const truncate = (text, max = 100) =>
     text.length > max ? text.slice(0, max) + "…" : text;
 
   return (
     <div
-      className="bg-gradient-to-br from-blue-100 via-blue-200 to-blue-50 
+      className="w-full sm:w-72 md:w-80 lg:w-64 
+                 bg-gradient-to-br from-blue-100 via-blue-200 to-blue-50 
                  rounded-2xl shadow-lg hover:shadow-xl 
                  transition-transform transform hover:scale-105 duration-300 
-                 flex flex-col overflow-hidden border border-blue-50"
+                 flex flex-col overflow-hidden border border-blue-50 mx-auto"
     >
       {/* Book cover */}
       <div className="h-44 bg-blue-50 rounded-t-2xl flex items-center justify-center overflow-hidden">
@@ -30,7 +30,6 @@ export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin })
         <h3 className="font-bold text-lg text-blue-900">{book.title}</h3>
         <p className="text-sm text-blue-700">{book.author}</p>
 
-        {/* Book description */}
         {book.description && (
           <p className="text-xs text-blue-500 mt-2">{truncate(book.description)}</p>
         )}
@@ -39,7 +38,6 @@ export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin })
           Available: {book.available_copies}
         </p>
 
-        {/* Admin controls */}
         {isAdmin ? (
           <div className="flex gap-2 mt-auto">
             <button
