@@ -4,6 +4,31 @@ const pool = require('../db');
 const { authMiddleware, adminOnly } = require('../middleware/authMiddleware');
 const { logActivity } = require('../utils/activity');
 
+// Admin: send mail using LRN instead of user_id
+router.post('/:userId/notify', authMiddleware, adminOnly, async (req, res) => {
+  const userId = req.params.userId;
+  const { title, message } = req.body;
+
+  try {
+    const { rows } = await pool.query('SELECT lrn FROM users WHERE id=$1', [userId]);
+    if (!rows.length) return res.status(404).json({ error: 'User not found' });
+
+    const lrn = rows[0].lrn;
+
+    // Replace this with your actual mail sending logic
+    await sendMailFunction({
+      recipient: lrn, // use LRN instead of user_id
+      title,
+      message
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 /** GET all books or search via ?q= */
 router.get('/', authMiddleware, async (req, res) => {
   try {
