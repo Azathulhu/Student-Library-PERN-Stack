@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export default function Login({ onLogin }) {
+  // receive handleLogin as onLogin
   const [lrn, setLrn] = useState("");
   const [password, setPassword] = useState("");
   const nav = useNavigate();
@@ -12,7 +13,9 @@ export default function Login({ onLogin }) {
     e.preventDefault();
     try {
       const { data } = await api.post("/auth/login", { lrn, password });
+      // ✅ Call App.js handler to set user state
       if (onLogin) onLogin(data.token, data.user);
+      // ✅ Navigate after user state is set
       nav("/dashboard");
     } catch (err) {
       console.error(err.response?.data || err);
@@ -21,17 +24,14 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center min-h-screen w-full overflow-hidden">
-      {/* Background with smooth fade-in */}
-      <motion.div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url(/schooBg.jpg)" }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 2, ease: "easeInOut" }}
-      />
-
-      {/* Optional animated overlay for color tint */}
+    <div
+      className="fixed inset-0 flex items-center justify-center min-h-screen w-full overflow-hidden"
+      style={{
+        backgroundImage: "url(/schooBg.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <motion.div
         className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-transparent blur-3xl"
         animate={{ opacity: [0.6, 0.9, 0.6], scale: [1, 1.05, 1] }}
@@ -51,16 +51,10 @@ export default function Login({ onLogin }) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
         >
-          <img
-            src="/schoolLogo.jpg"
-            alt="Logo"
-            className="w-full h-full rounded-full"
-          />
+          <img src="/schoolLogo.jpg" alt="Logo" className="w-full h-full rounded-full" />
         </motion.div>
 
-        <h2 className="text-3xl font-extrabold text-white mb-2 tracking-wide">
-          Welcome Back
-        </h2>
+        <h2 className="text-3xl font-extrabold text-white mb-2 tracking-wide">Welcome Back</h2>
         <p className="text-gray-200 mb-6 text-center">
           Sign in to your BCSHS Library account
         </p>
