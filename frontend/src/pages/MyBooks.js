@@ -6,17 +6,8 @@ export default function MyBooks() {
   const [activeTab, setActiveTab] = useState("pending");
 
   // search + pagination states for each tab
-  const [queries, setQueries] = useState({
-    pending: "",
-    borrowed: "",
-    returned: "",
-  });
-  const [pages, setPages] = useState({
-    pending: 1,
-    borrowed: 1,
-    returned: 1,
-  });
-
+  const [queries, setQueries] = useState({ pending: "", borrowed: "", returned: "" });
+  const [pages, setPages] = useState({ pending: 1, borrowed: 1, returned: 1 });
   const limit = 5;
 
   const fetchBooks = async () => {
@@ -75,6 +66,7 @@ export default function MyBooks() {
         i.title.toLowerCase().includes(query) ||
         (i.author && i.author.toLowerCase().includes(query))
     );
+
     const page = pages[status];
     const start = (page - 1) * limit;
     const end = start + limit;
@@ -95,7 +87,7 @@ export default function MyBooks() {
       className="flex flex-col items-center min-h-screen p-6"
       style={{
         backgroundImage:
-          "url(https://scontent.fcrk2-1.fna.fbcdn.net/v/t39.30808-6/517793024_122237938226024229_2789074869652155638_n.jpg?... )",
+          'url(https://scontent.fcrk2-1.fna.fbcdn.net/v/t39.30808-6/517793024_122237938226024229_2789074869652155638_n.jpg?... )',
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -153,9 +145,7 @@ export default function MyBooks() {
                 <div>
                   <div className="font-bold">{i.title}</div>
                   <div className="text-sm text-bubbly-dark">
-                    {activeTab === "pending" && (
-                      <>Requested at: {i.requested_at}</>
-                    )}
+                    {activeTab === "pending" && <>Requested at: {i.requested_at}</>}
                     {activeTab === "borrowed" && <>Due: {i.due_date}</>}
                     {activeTab === "returned" && <>Returned at: {i.returned_at}</>}
                   </div>
