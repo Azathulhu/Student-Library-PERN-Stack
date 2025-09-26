@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
-import BookCard from "./BookCard"; // import your existing BookCard
+import BookCard from "../components/BookCard";
 
 export default function MyBooks() {
   const [items, setItems] = useState([]);
