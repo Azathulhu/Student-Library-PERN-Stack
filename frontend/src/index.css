@@ -23,7 +23,3 @@ body {
               radial-gradient(circle at 60% 80%, #B3E5FC 0 100px, transparent 160px);
   opacity: 0.18;
 }
-
-a[href^="#"]::before {
-  content: "";
-}
