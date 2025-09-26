@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
 export default function Login({ onLogin }) {
-  // receive handleLogin as onLogin
   const [lrn, setLrn] = useState("");
   const [password, setPassword] = useState("");
   const nav = useNavigate();
@@ -13,9 +12,7 @@ export default function Login({ onLogin }) {
     e.preventDefault();
     try {
       const { data } = await api.post("/auth/login", { lrn, password });
-      // ✅ Call App.js handler to set user state
       if (onLogin) onLogin(data.token, data.user);
-      // ✅ Navigate after user state is set
       nav("/dashboard");
     } catch (err) {
       console.error(err.response?.data || err);
@@ -24,13 +21,23 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 flex items-center justify-center min-h-screen w-full overflow-hidden"
       style={{
         backgroundImage: "url(/schooBg.jpg)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
+      initial={{ opacity: 0, filter: "drop-shadow(0 0 0px rgba(59,130,246,0))" }}
+      animate={{
+        opacity: 1,
+        filter: [
+          "drop-shadow(0 0 0px rgba(59,130,246,0))",
+          "drop-shadow(0 0 20px rgba(59,130,246,0.5))",
+          "drop-shadow(0 0 0px rgba(59,130,246,0))",
+        ],
+      }}
+      transition={{ duration: 2 }}
     >
       <motion.div
         className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-transparent blur-3xl"
@@ -42,7 +49,7 @@ export default function Login({ onLogin }) {
         onSubmit={submit}
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.8, ease: "easeOut", delay: 0.5 }}
         className="relative w-full max-w-md bg-white/20 rounded-2xl shadow-2xl px-8 py-10 flex flex-col items-center z-10 backdrop-blur-xl border border-white/30"
       >
         <motion.div
@@ -51,10 +58,16 @@ export default function Login({ onLogin }) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
         >
-          <img src="/schoolLogo.jpg" alt="Logo" className="w-full h-full rounded-full" />
+          <img
+            src="/schoolLogo.jpg"
+            alt="Logo"
+            className="w-full h-full rounded-full"
+          />
         </motion.div>
 
-        <h2 className="text-3xl font-extrabold text-white mb-2 tracking-wide">Welcome Back</h2>
+        <h2 className="text-3xl font-extrabold text-white mb-2 tracking-wide">
+          Welcome Back
+        </h2>
         <p className="text-gray-200 mb-6 text-center">
           Sign in to your BCSHS Library account
         </p>
@@ -91,6 +104,6 @@ export default function Login({ onLogin }) {
           </a>
         </div>
       </motion.form>
-    </div>
+    </motion.div>
   );
 }
