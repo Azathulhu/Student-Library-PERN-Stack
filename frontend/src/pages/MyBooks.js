@@ -1,134 +1,5 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
-import BookCard from "../components/BookCard";
-
-export default function MyBooks() {
-  const [books, setBooks] = useState([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState("");
-  const [tab, setTab] = useState("pending"); // pending | borrowed | returned
-  const limit = 12;
-
-  const loadBooks = async (status = tab, q = search, p = page) => {
-    try {
-      const res = await api.get("/books/admin-borrowed-search", {
-        params: { status, q, page: p, limit },
-      });
-      setBooks(res.data.data);
-      setTotal(res.data.total);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    setPage(1);
-    loadBooks(tab, search, 1);
-  }, [tab, search]);
-
-  useEffect(() => {
-    loadBooks(tab, search, page);
-  }, [page]);
-
-  const handleAction = async (bookId, action) => {
-    try {
-      if (action === "cancel") {
-        await api.delete(`/books/cancel-pending/${bookId}`);
-      } else if (action === "return") {
-        await api.post(`/books/return/${bookId}`);
-      } else if (action === "delete") {
-        await api.delete(`/books/delete-returned/${bookId}`);
-      }
-      loadBooks(tab, search, page);
-    } catch (err) {
-      console.error(err);
-      alert(err?.response?.data?.error || "Action failed");
-    }
-  };
-
-  return (
-    <div className="px-4 md:px-8 py-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
-      {/* Tabs */}
-      <div className="flex justify-center gap-4 mb-6">
-        {["pending", "borrowed", "returned"].map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-full font-semibold ${
-              tab === t
-                ? "bg-blue-400 text-white shadow"
-                : "bg-blue-100 text-blue-700 hover:bg-blue-200"
-            }`}
-          >
-            {t.charAt(0).toUpperCase() + t.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {/* Search */}
-      <div className="mb-6 max-w-xl mx-auto relative">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search..."
-          className="peer w-full px-4 py-3 rounded-full border-2 border-blue-200 bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition shadow-md"
-        />
-        <label className="absolute left-5 top-3 text-blue-300 text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-blue-300 peer-focus:top-[-0.5rem] peer-focus:text-blue-500 peer-focus:text-xs bg-blue-50 px-1 transition-all rounded">
-          Search
-        </label>
-      </div>
-
-      {/* Books Grid */}
-      {books.length === 0 ? (
-        <div className="text-blue-300 text-center mt-12">No books found.</div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {books.map((b) => (
-            <BookCard
-              key={b.borrow_id || b.book_id}
-              book={b}
-              onRequest={
-                tab === "pending"
-                  ? () => handleAction(b.borrow_id, "cancel")
-                  : tab === "borrowed"
-                  ? () => handleAction(b.borrow_id, "return")
-                  : tab === "returned"
-                  ? () => handleAction(b.borrow_id, "delete")
-                  : null
-              }
-              isAdmin={false}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Pagination */}
-      <div className="flex justify-center gap-4 mt-8">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white font-semibold shadow hover:from-blue-400 hover:to-blue-500 transition disabled:opacity-50"
-        >
-          Prev
-        </button>
-        <span className="text-blue-700 font-medium">
-          Page {page} of {Math.ceil(total / limit)}
-        </span>
-        <button
-          disabled={page >= Math.ceil(total / limit)}
-          onClick={() => setPage(page + 1)}
-          className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white font-semibold shadow hover:from-blue-400 hover:to-blue-500 transition disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
-    </div>
-  );
-}
-/*import React, { useEffect, useState } from "react";
-import api from "../api";
 
 export default function MyBooks() {
   const [items, setItems] = useState([]);
@@ -228,7 +99,7 @@ export default function MyBooks() {
         </h1>
 
         {/* Tabs */}
-        /*<div className="flex justify-center space-x-4 mb-6">
+        <div className="flex justify-center space-x-4 mb-6">
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -242,10 +113,10 @@ export default function MyBooks() {
               {tab.label}
             </button>
           ))}
-        </div>*/
+        </div>
 
         {/* Search bar */}
-        /*<div className="mb-4">
+        <div className="mb-4">
           <input
             type="text"
             placeholder={`Search ${activeTab} books...`}
@@ -255,10 +126,10 @@ export default function MyBooks() {
             }
             className="w-full p-2 border rounded-bubbly shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-        </div>*/
+        </div>
 
         {/* List */}
-        /*<div className="space-y-3">
+        <div className="space-y-3">
           {shownBooks.length > 0 ? (
             shownBooks.map((i) => (
               <div
@@ -314,7 +185,7 @@ export default function MyBooks() {
         </div>*/
 
         {/* Pagination */}
-        /*{totalPages > 1 && (
+        {totalPages > 1 && (
           <div className="flex justify-center space-x-2 mt-4">
             <button
               disabled={pages[activeTab] === 1}
@@ -342,4 +213,4 @@ export default function MyBooks() {
       </div>
     </div>
   );
-}*/
+}
