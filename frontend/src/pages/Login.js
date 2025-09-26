@@ -13,20 +13,18 @@ export default function Login({ setUser }) {
     try {
       const { data } = await api.post("/auth/login", { lrn, password });
 
-      // ✅ Store token in localStorage
+      // Store token
       localStorage.setItem("token", data.token);
-      
-      // ✅ Optional: store user info
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // ✅ Update global user state if parent provides setUser
-      if (setUser) setUser(data.user);
+      // Update global state
+      setUser?.(data.user);
 
-      // ✅ Navigate to dashboard
+      // Navigate immediately to dashboard
       nav("/dashboard");
     } catch (err) {
       console.error(err.response?.data || err);
-      alert(err?.response?.data?.error || "Login failed");
+      alert(err.response?.data?.error || "Login failed");
     }
   };
 
@@ -39,7 +37,6 @@ export default function Login({ setUser }) {
         backgroundPosition: "center",
       }}
     >
-      {/* Floating glow background */}
       <motion.div
         className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-transparent blur-3xl"
         animate={{ opacity: [0.6, 0.9, 0.6], scale: [1, 1.05, 1] }}
@@ -99,9 +96,12 @@ export default function Login({ setUser }) {
 
         <div className="mt-6 text-gray-200 text-sm text-center">
           <span>Don't have an account? </span>
-          <a href="#/signup" className="text-blue-300 font-bold hover:underline">
+          <span
+            className="text-blue-300 font-bold hover:underline cursor-pointer"
+            onClick={() => nav("/signup")}
+          >
             Sign up
-          </a>
+          </span>
         </div>
       </motion.form>
     </div>
