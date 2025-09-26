@@ -6,7 +6,7 @@ export default function Admin() {
   const [books, setBooks] = useState([]);
   const [pending, setPending] = useState([]);
   const [form, setForm] = useState({ title: '', author: '', description: '', total_copies: 1 });
-  const [mail, setMail] = useState({ user_id: "", title: "", message: "" });
+  const [mail, setMail] = useState({ lrn: "", title: "", message: "" });
   const [editingBook, setEditingBook] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [borrowed, setBorrowed] = useState([]);
@@ -155,7 +155,7 @@ export default function Admin() {
     }
   };
 
-  const sendMail = async () => {
+  /*const sendMail = async () => {
     try {
       await api.post(`/users/${mail.user_id}/notify`, { title: mail.title, message: mail.message });
       alert("Mail sent!");
@@ -163,7 +163,20 @@ export default function Admin() {
     } catch (err) {
       alert(err?.response?.data?.error || "Failed to send");
     }
-  };
+  };*/
+  const sendMail = async () => {
+  try {
+    await api.post(`/users/notify`, { 
+      lrn: mail.lrn, 
+      title: mail.title, 
+      message: mail.message 
+    });
+    alert("Mail sent!");
+    setMail({ lrn: "", title: "", message: "" });
+  } catch (err) {
+    alert(err?.response?.data?.error || "Failed to send");
+  }
+};
 
   useEffect(() => {
     loadPending();
@@ -414,7 +427,7 @@ export default function Admin() {
             {/* Send Mail Section */}
             <section className="mb-6 max-w-lg mx-auto bg-white/90 backdrop-blur-sm p-6 rounded-bubbly shadow-bubbly">
               <h2 className="font-bold text-bubbly-deep mb-4 text-lg">Send Mail</h2>
-              <input value={mail.user_id} onChange={e => setMail({ ...mail, user_id: e.target.value })} placeholder="User ID" className="w-full mb-3 px-4 py-2 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition" />
+              <input value={mail.lrn} onChange={e => setMail({ ...mail, lrn: e.target.value })} placeholder="LRN" className="w-full mb-3 px-4 py-2 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition" />
               <input value={mail.title} onChange={e => setMail({ ...mail, title: e.target.value })} placeholder="Title" className="w-full mb-3 px-4 py-2 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition" />
               <textarea value={mail.message} onChange={e => setMail({ ...mail, message: e.target.value })} placeholder="Message" className="w-full mb-3 px-4 py-2 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition" />
               <button onClick={sendMail} className="w-full bg-bubbly-blue hover:bg-bubbly-deep text-white py-2 rounded-bubbly font-bold transition">Send</button>
