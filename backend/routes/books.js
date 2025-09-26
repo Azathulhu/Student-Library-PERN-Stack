@@ -137,12 +137,43 @@ router.post('/return/:borrowId', authMiddleware, async (req, res) => {
 });
 
 /** Get user's borrowed/pending/returned */
-router.get('/my', authMiddleware, async (req, res) => {
+/**router.get('/my', authMiddleware, async (req, res) => {
   const uid = req.user.id;
   try {
     const sql = `SELECT b.id as borrow_id, bk.id as book_id, bk.title, bk.author, b.status, b.requested_at, b.borrowed_at, b.due_date, b.returned_at
                  FROM borrowed_books b JOIN books bk ON b.book_id = bk.id
                  WHERE b.user_id = $1 ORDER BY b.requested_at DESC`;
+    const { rows } = await pool.query(sql, [uid]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});*/
+/** Get user's borrowed/pending/returned */
+router.get('/my', authMiddleware, async (req, res) => {
+  const uid = req.user.id;
+  try {
+    const sql = `
+      SELECT 
+        b.id as borrow_id, 
+        bk.id as book_id, 
+        bk.title, 
+        bk.author, 
+        bk.photo_url, 
+        bk.description, 
+        bk.total_copies,
+        bk.available_copies,
+        b.status, 
+        b.requested_at, 
+        b.borrowed_at, 
+        b.due_date, 
+        b.returned_at
+      FROM borrowed_books b 
+      JOIN books bk ON b.book_id = bk.id
+      WHERE b.user_id = $1 
+      ORDER BY b.requested_at DESC
+    `;
     const { rows } = await pool.query(sql, [uid]);
     res.json(rows);
   } catch (err) {
