@@ -50,29 +50,31 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="px-4 md:px-8 py-6">
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-6 text-gradient bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
-        Explore Books
+    <div className="px-4 md:px-8 py-6 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 min-h-screen">
+      <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-400 animate-gradient-x">
+        Discover Your Next Read
       </h1>
 
-      {/* Unique Search Bar */}
-      <div className="mb-6 relative max-w-xl mx-auto">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search books..."
-          className="peer w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
-        />
-        <label
-          className="absolute left-4 top-3 text-gray-400 text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:top-[-0.5rem] peer-focus:text-blue-500 peer-focus:text-xs transition-all bg-white px-1"
-        >
-          Search for a book...
-        </label>
+      {/* Interactive Search Bar */}
+      <div className="mb-8 flex justify-center">
+        <div className="relative w-full max-w-xl">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search books..."
+            className="peer w-full px-5 py-3 rounded-xl border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-800 shadow-lg transition-all duration-300 hover:scale-105"
+          />
+          <label className="absolute left-5 top-3 text-gray-400 text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:top-[-0.6rem] peer-focus:text-blue-500 peer-focus:text-xs transition-all bg-white px-1">
+            Search for a book...
+          </label>
+        </div>
       </div>
 
       {books.length === 0 ? (
-        <div className="text-gray-500 text-center mt-12">No books found.</div>
+        <div className="text-gray-500 text-center mt-12 text-lg animate-pulse">
+          No books found 😔
+        </div>
       ) : (
         <>
           {/* Interactive Book Grid */}
@@ -80,19 +82,28 @@ export default function Dashboard() {
             {books.map((b) => (
               <div
                 key={b.id}
-                className="transform transition duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1"
+                className="group perspective cursor-pointer"
               >
-                <BookCard book={b} onRequest={request} />
+                <div className="relative w-full h-full transition-transform duration-500 transform-style-preserve-3d group-hover:rotate-y-180">
+                  {/* Front */}
+                  <BookCard book={b} onRequest={request} />
+                  {/* Back */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 to-yellow-300 text-white rounded-xl shadow-xl p-4 flex flex-col justify-center items-center rotate-y-180 backface-hidden">
+                    <h3 className="font-bold text-lg mb-2">{b.title}</h3>
+                    <p className="text-sm mb-4">{b.description || "No description available"}</p>
+                    <p className="text-xs">Available: {b.available_copies}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Pagination + Convenience */}
+          {/* Pagination */}
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
             <button
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
-              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50"
+              className="px-5 py-2 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 text-white font-semibold hover:scale-110 transition-transform disabled:opacity-50"
             >
               Prev
             </button>
@@ -100,7 +111,7 @@ export default function Dashboard() {
             <button
               disabled={page >= Math.ceil(total / limit)}
               onClick={() => setPage(page + 1)}
-              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50"
+              className="px-5 py-2 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 text-white font-semibold hover:scale-110 transition-transform disabled:opacity-50"
             >
               Next
             </button>
@@ -108,16 +119,14 @@ export default function Dashboard() {
 
           {/* Modals */}
           {messageModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 px-4">
-              <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-fadeIn">
-                <h2 className="text-lg font-bold mb-4">
-                  {messageModal.type === "success" ? "Success" : "Error"}
-                </h2>
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4">
+              <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-fadeIn">
+                <h2 className="text-xl font-bold mb-4">{messageModal.type === "success" ? "Success" : "Error"}</h2>
                 <p className="mb-6">{messageModal.text}</p>
                 <div className="flex justify-end">
                   <button
                     onClick={() => setMessageModal(null)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                    className="px-4 py-2 bg-gradient-to-r from-purple-400 to-pink-500 text-white rounded-full hover:scale-105 transition-transform"
                   >
                     OK
                   </button>
@@ -127,22 +136,22 @@ export default function Dashboard() {
           )}
 
           {confirmRequest && (
-            <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 px-4">
-              <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-fadeIn">
-                <h2 className="text-lg font-bold mb-4">Confirm Borrow</h2>
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 px-4">
+              <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-fadeIn">
+                <h2 className="text-xl font-bold mb-4">Confirm Borrow</h2>
                 <p className="mb-6">
                   Are you sure you want to send a borrow request for this book?
                 </p>
                 <div className="flex justify-end gap-3 flex-wrap">
                   <button
                     onClick={() => setConfirmRequest(null)}
-                    className="px-4 py-2 border rounded hover:bg-gray-100 transition"
+                    className="px-4 py-2 border rounded-full hover:bg-gray-100 transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => handleConfirmRequest(confirmRequest)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                    className="px-4 py-2 bg-gradient-to-r from-purple-400 to-pink-500 text-white rounded-full hover:scale-105 transition-transform"
                   >
                     Confirm
                   </button>
