@@ -7,37 +7,28 @@ export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin })
 
   return (
     <div
-      className="
-        bg-gradient-to-br from-blue-100 via-blue-50 to-blue-200 
-        rounded-2xl shadow-md hover:shadow-xl transition-transform transform hover:scale-105 duration-300
-        flex flex-col
-        w-full sm:w-64
-        m-2
-      "
+      className="bg-white rounded-xl shadow hover:shadow-lg transition-transform transform hover:scale-105 duration-200 flex flex-col"
     >
       {/* Book cover */}
-      <div className="h-48 bg-blue-50 rounded-t-2xl flex items-center justify-center overflow-hidden">
+      <div className="h-40 bg-gray-100 rounded-t-xl flex items-center justify-center overflow-hidden">
         {book.photo_url ? (
-          <img
-            src={book.photo_url}
-            alt={book.title}
-            className="h-full w-full object-cover rounded-t-2xl"
-          />
+          <img src={book.photo_url} alt={book.title} className="h-full" />
         ) : (
-          <span className="text-xs text-blue-300">No Image</span>
+          <span className="text-xs text-gray-500">No Image</span>
         )}
       </div>
 
       {/* Book info */}
       <div className="p-4 flex-1 flex flex-col">
-        <h3 className="font-bold text-lg text-blue-800">{book.title}</h3>
-        <p className="text-sm text-blue-600">{book.author}</p>
+        <h3 className="font-bold text-lg text-gray-800">{book.title}</h3>
+        <p className="text-sm text-gray-600">{book.author}</p>
 
+        {/* Book description */}
         {book.description && (
-          <p className="text-xs text-blue-500 mt-2">{truncate(book.description)}</p>
+          <p className="text-xs text-gray-500 mt-2">{truncate(book.description)}</p>
         )}
 
-        <p className="text-xs text-blue-500 mt-2">
+        <p className="text-xs text-gray-500 mt-2">
           Available: {book.available_copies}
         </p>
 
@@ -46,13 +37,13 @@ export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin })
           <div className="flex gap-2 mt-auto">
             <button
               onClick={() => onEdit && onEdit(book)}
-              className="bg-blue-400 text-white px-3 py-1 rounded-full hover:bg-blue-500 transition-colors"
+              className="bg-blue-500 text-white px-2 py-1 rounded"
             >
               Edit
             </button>
             <button
               onClick={() => onDelete && onDelete(book.id)}
-              className="bg-red-400 text-white px-3 py-1 rounded-full hover:bg-red-500 transition-colors"
+              className="bg-red-500 text-white px-2 py-1 rounded"
             >
               Delete
             </button>
@@ -61,7 +52,7 @@ export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin })
           <button
             disabled={book.available_copies < 1}
             onClick={() => onRequest && onRequest(book.id)}
-            className="mt-auto w-full bg-blue-500 text-white py-2 rounded-full shadow hover:bg-blue-600 disabled:opacity-50 transition-colors"
+            className="mt-auto w-full bg-blue-600 text-white py-2 rounded-lg shadow hover:bg-blue-700 disabled:opacity-50"
           >
             Borrow
           </button>
