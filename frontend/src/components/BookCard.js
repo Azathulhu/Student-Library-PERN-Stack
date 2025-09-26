@@ -6,11 +6,15 @@ export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin })
 
   return (
     <div
-      className="w-full sm:w-72 md:w-80 lg:w-64 
-                 bg-gradient-to-br from-blue-100 via-blue-200 to-blue-50 
-                 rounded-2xl shadow-lg hover:shadow-xl 
-                 transition-transform transform hover:scale-105 duration-300 
-                 flex flex-col overflow-hidden border border-blue-50 mx-auto"
+      className="
+        w-full 
+        max-w-xs sm:max-w-sm md:max-w-md 
+        bg-gradient-to-br from-blue-100 via-blue-200 to-blue-50
+        rounded-2xl shadow-lg hover:shadow-xl
+        transition-transform transform hover:scale-105 duration-300
+        flex flex-col overflow-hidden border border-blue-50
+        mx-auto
+      "
     >
       {/* Book cover */}
       <div className="h-44 bg-blue-50 rounded-t-2xl flex items-center justify-center overflow-hidden">
@@ -39,16 +43,16 @@ export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin })
         </p>
 
         {isAdmin ? (
-          <div className="flex gap-2 mt-auto">
+          <div className="flex gap-2 mt-auto flex-wrap">
             <button
               onClick={() => onEdit && onEdit(book)}
-              className="bg-gradient-to-r from-blue-300 to-blue-400 text-white px-3 py-1 rounded-full shadow hover:brightness-110 transition duration-200"
+              className="bg-gradient-to-r from-blue-300 to-blue-400 text-white px-3 py-1 rounded-full shadow hover:brightness-110 transition duration-200 flex-1"
             >
               Edit
             </button>
             <button
               onClick={() => onDelete && onDelete(book.id)}
-              className="bg-gradient-to-r from-red-300 to-red-400 text-white px-3 py-1 rounded-full shadow hover:brightness-110 transition duration-200"
+              className="bg-gradient-to-r from-red-300 to-red-400 text-white px-3 py-1 rounded-full shadow hover:brightness-110 transition duration-200 flex-1"
             >
               Delete
             </button>
@@ -57,8 +61,8 @@ export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin })
           <button
             disabled={book.available_copies < 1}
             onClick={() => onRequest && onRequest(book.id)}
-            className="mt-auto w-full bg-gradient-to-r from-blue-300 to-blue-400 
-                       text-white py-2 rounded-2xl shadow-lg 
+            className="mt-auto w-full bg-gradient-to-r from-blue-300 to-blue-400
+                       text-white py-2 rounded-2xl shadow-lg
                        hover:brightness-110 disabled:opacity-50 transition duration-200"
           >
             Borrow
