@@ -280,7 +280,7 @@ export default function Admin() {
                       <div className="font-bold">{p.title}</div>
                       <div className="text-xs text-bubbly-dark">User: {p.name} ({p.lrn})</div>
                       <div className="text-xs text-bubbly-dark">Requested: {new Date(p.requested_at).toLocaleString()}</div>
-                      <div className="text-xs text-bubbly-dark">User ID: {p.user_id} ({p.user_id})</div>
+                      <div className="text-xs text-bubbly-dark">User ID: {p.user_id} ({u.user_id})</div>
                     </div>
                     <div className="flex items-center justify-center gap-2 mt-2">
                       <button onClick={() => approve(p.borrow_id)} className="bg-bubbly-blue hover:bg-bubbly-deep text-white px-3 py-1 rounded-bubbly transition">Approve</button>
