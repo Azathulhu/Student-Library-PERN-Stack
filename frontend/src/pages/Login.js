@@ -22,31 +22,28 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center min-h-screen w-full overflow-hidden">
-      {/* Animated Gradient Background */}
+      {/* Background with smooth fade-in */}
       <motion.div
-        className="absolute inset-0"
-        style={{
-          background: `linear-gradient(135deg, #a0c4ff, #70a1ff, #3c69ff)`,
-          backgroundSize: "600% 600%",
-        }}
-        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: "url(/schooBg.jpg)" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2, ease: "easeInOut" }}
       />
 
-      {/* Soft overlay blur */}
+      {/* Optional animated overlay for color tint */}
       <motion.div
-        className="absolute inset-0 bg-white/10 backdrop-blur-xl"
-        animate={{ opacity: [0.6, 0.85, 0.6] }}
+        className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-transparent blur-3xl"
+        animate={{ opacity: [0.6, 0.9, 0.6], scale: [1, 1.05, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Login Form */}
       <motion.form
         onSubmit={submit}
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative w-full max-w-md bg-white/20 rounded-2xl shadow-2xl px-8 py-10 flex flex-col items-center z-10 border border-white/30"
+        className="relative w-full max-w-md bg-white/20 rounded-2xl shadow-2xl px-8 py-10 flex flex-col items-center z-10 backdrop-blur-xl border border-white/30"
       >
         <motion.div
           className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center mb-4 shadow-lg"
@@ -54,10 +51,16 @@ export default function Login({ onLogin }) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
         >
-          <img src="/schoolLogo.jpg" alt="Logo" className="w-full h-full rounded-full" />
+          <img
+            src="/schoolLogo.jpg"
+            alt="Logo"
+            className="w-full h-full rounded-full"
+          />
         </motion.div>
 
-        <h2 className="text-3xl font-extrabold text-white mb-2 tracking-wide">Welcome Back</h2>
+        <h2 className="text-3xl font-extrabold text-white mb-2 tracking-wide">
+          Welcome Back
+        </h2>
         <p className="text-gray-200 mb-6 text-center">
           Sign in to your BCSHS Library account
         </p>
