@@ -53,23 +53,6 @@ export default function Dashboard() {
     <div className="px-4 md:px-8 py-6">
       <h1 className="text-2xl font-bold mb-4 md:mb-6">Book Lists</h1>
 
-      {/* Search Bar */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-3 sm:items-center">
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search books..."
-          className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <button
-          onClick={() => loadBooks(search, 1)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-        >
-          Search
-        </button>
-      </div>
-
       {books.length === 0 ? (
         <div className="text-gray-500">No books found.</div>
       ) : (
