@@ -13,7 +13,7 @@ export default function MyBooks() {
   const fetchBooks = async () => {
     try {
       const { data } = await api.get("/books/my");
-      setItems(data);
+      setItems(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     }
@@ -57,21 +57,41 @@ export default function MyBooks() {
     }
   };
 
-  // Filter + paginate
+  // filter + paginate
   const filterBooks = (status) => {
-    const query = queries[status].toLowerCase();
-    const all = items.filter((i) => i.status === status);
-    const filtered = all.filter(
-      (i) =>
-        i.title.toLowerCase().includes(query) ||
-        (i.author && i.author.toLowerCase().includes(query))
-    );
+    const q = (queries[status] || "").trim().toLowerCase();
+    const all = items.filter((i) => (i.status || "") === status);
+    const filtered = all.filter((i) => {
+      const title = (i.title || "").toLowerCase();
+      const author = (i.author || "").toLowerCase();
+      const desc = (i.description || "").toLowerCase();
+      return title.includes(q) || author.includes(q) || desc.includes(q);
+    });
 
-    const page = pages[status];
+    // ensure page is at least 1
+    const page = Math.max(1, pages[status] || 1);
     const start = (page - 1) * limit;
     const end = start + limit;
     return { data: filtered.slice(start, end), total: filtered.length };
   };
+
+  // When items/queries/activeTab change, clamp pages[activeTab] to valid range
+  useEffect(() => {
+    const q = (queries[activeTab] || "").trim().toLowerCase();
+    const all = items.filter((i) => (i.status || "") === activeTab);
+    const filteredCount = all.filter((i) => {
+      const title = (i.title || "").toLowerCase();
+      const author = (i.author || "").toLowerCase();
+      const desc = (i.description || "").toLowerCase();
+      return title.includes(q) || author.includes(q) || desc.includes(q);
+    }).length;
+
+    const computedTotalPages = Math.max(1, Math.ceil(filteredCount / limit));
+    if ((pages[activeTab] || 1) > computedTotalPages) {
+      setPages((prev) => ({ ...prev, [activeTab]: computedTotalPages }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, queries, activeTab]);
 
   const tabs = [
     { key: "pending", label: "Pending Books" },
@@ -121,9 +141,7 @@ export default function MyBooks() {
             type="text"
             placeholder={`Search ${activeTab} books...`}
             value={queries[activeTab]}
-            onChange={(e) =>
-              setQueries({ ...queries, [activeTab]: e.target.value })
-            }
+            onChange={(e) => setQueries({ ...queries, [activeTab]: e.target.value })}
             className="w-full p-2 border rounded-bubbly shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
@@ -134,7 +152,7 @@ export default function MyBooks() {
             shownBooks.map((i) => (
               <div
                 key={i.borrow_id}
-                className={`p-4 rounded-bubbly shadow-sm flex justify-between items-center ${
+                className={`p-4 rounded-bubbly shadow-sm flex gap-4 items-center ${
                   activeTab === "pending"
                     ? "bg-yellow-100/70"
                     : activeTab === "borrowed"
@@ -142,51 +160,73 @@ export default function MyBooks() {
                     : "bg-green-100/70"
                 }`}
               >
-                <div>
-                  <div className="font-bold">{i.title}</div>
-                  <div className="text-sm text-bubbly-dark">
-                    {activeTab === "pending" && (
-                      <span>Requested at: {i.requested_at}</span>
-                    )}
-                    {activeTab === "borrowed" && (
-                      <span>Due: {i.due_date}</span>
-                    )}
-                    {activeTab === "returned" && (
-                      <span>Returned at: {i.returned_at}</span>
-                    )}
+                {/* Book image */}
+                <div className="w-20 h-28 flex-shrink-0 bg-gray-200 rounded overflow-hidden flex items-center justify-center">
+                  {i.photo_url ? (
+                    <img
+                      src={i.photo_url}
+                      alt={i.title || "book"}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src="https://via.placeholder.com/120x168?text=No+Image"
+                      alt="no image"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+
+                {/* Book info */}
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-blue-900 truncate">{i.title}</div>
+                  <div className="text-sm text-blue-700 truncate">{i.author}</div>
+                  {i.description && (
+                    <p className="text-xs text-gray-600 mt-1 line-clamp-3">
+                      {i.description.length > 140 ? i.description.slice(0, 140) + "…" : i.description}
+                    </p>
+                  )}
+
+                  <div className="mt-2 text-xs text-gray-600">
+                    {activeTab === "pending" ? (
+                      <span>Requested at: {i.requested_at || "-"}</span>
+                    ) : activeTab === "borrowed" ? (
+                      <span>Due: {i.due_date || "-"}</span>
+                    ) : activeTab === "returned" ? (
+                      <span>Returned at: {i.returned_at || "-"}</span>
+                    ) : null}
                   </div>
                 </div>
 
-                {activeTab === "pending" && (
-                  <button
-                    onClick={() => cancelPending(i.borrow_id)}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
-                  >
-                    Cancel
-                  </button>
-                )}
-                {activeTab === "borrowed" && (
-                  <button
-                    onClick={() => doReturn(i.borrow_id)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
-                  >
-                    Return
-                  </button>
-                )}
-                {activeTab === "returned" && (
-                  <button
-                    onClick={() => deleteReturned(i.borrow_id)}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
-                  >
-                    Delete
-                  </button>
-                )}
+                {/* Actions */}
+                <div className="flex flex-col gap-2">
+                  {activeTab === "pending" ? (
+                    <button
+                      onClick={() => cancelPending(i.borrow_id)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                    >
+                      Cancel
+                    </button>
+                  ) : activeTab === "borrowed" ? (
+                    <button
+                      onClick={() => doReturn(i.borrow_id)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                    >
+                      Return
+                    </button>
+                  ) : activeTab === "returned" ? (
+                    <button
+                      onClick={() => deleteReturned(i.borrow_id)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                    >
+                      Delete
+                    </button>
+                  ) : null}
+                </div>
               </div>
             ))
           ) : (
-            <div className="text-gray-500 text-center">
-              No {activeTab} books
-            </div>
+            <div className="text-gray-500 text-center">No {activeTab} books</div>
           )}
         </div>
 
@@ -194,21 +234,23 @@ export default function MyBooks() {
         {totalPages > 1 && (
           <div className="flex justify-center space-x-2 mt-4">
             <button
-              disabled={pages[activeTab] === 1}
+              disabled={(pages[activeTab] || 1) === 1}
               onClick={() =>
-                setPages({ ...pages, [activeTab]: pages[activeTab] - 1 })
+                setPages((prev) => ({ ...prev, [activeTab]: Math.max(1, (prev[activeTab] || 1) - 1) }))
               }
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               Prev
             </button>
+
             <span className="px-3 py-1">
-              Page {pages[activeTab]} of {totalPages}
+              Page {pages[activeTab] || 1} of {totalPages}
             </span>
+
             <button
-              disabled={pages[activeTab] === totalPages}
+              disabled={(pages[activeTab] || 1) >= totalPages}
               onClick={() =>
-                setPages({ ...pages, [activeTab]: pages[activeTab] + 1 })
+                setPages((prev) => ({ ...prev, [activeTab]: Math.min(totalPages, (prev[activeTab] || 1) + 1) }))
               }
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
