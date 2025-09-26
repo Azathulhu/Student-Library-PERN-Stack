@@ -21,24 +21,25 @@ export default function Login({ onLogin }) {
   };
 
   return (
-    <motion.div
-      className="fixed inset-0 flex items-center justify-center min-h-screen w-full overflow-hidden"
-      style={{
-        backgroundImage: "url(/schooBg.jpg)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-      initial={{ opacity: 0, filter: "drop-shadow(0 0 0px rgba(59,130,246,0))" }}
-      animate={{
-        opacity: 1,
-        filter: [
-          "drop-shadow(0 0 0px rgba(59,130,246,0))",
-          "drop-shadow(0 0 20px rgba(59,130,246,0.5))",
-          "drop-shadow(0 0 0px rgba(59,130,246,0))",
-        ],
-      }}
-      transition={{ duration: 2 }}
-    >
+      <motion.div
+        className="fixed inset-0 flex items-center justify-center min-h-screen w-full overflow-hidden"
+        style={{
+          backgroundImage: "url(/schooBg.jpg)",
+          backgroundSize: "contain",      // ensures the full image fits
+          backgroundPosition: "center",   // keeps it centered
+          backgroundRepeat: "no-repeat",  // prevents tiling
+        }}
+        initial={{ opacity: 0, filter: "drop-shadow(0 0 0px rgba(59,130,246,0))" }}
+        animate={{
+          opacity: 1,
+          filter: [
+            "drop-shadow(0 0 0px rgba(59,130,246,0))",
+            "drop-shadow(0 0 20px rgba(59,130,246,0.5))",
+            "drop-shadow(0 0 0px rgba(59,130,246,0))",
+          ],
+        }}
+        transition={{ duration: 2 }}
+      >
       <motion.div
         className="absolute inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-transparent blur-3xl"
         animate={{ opacity: [0.6, 0.9, 0.6], scale: [1, 1.05, 1] }}
