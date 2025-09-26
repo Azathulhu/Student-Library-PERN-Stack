@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
-import BookCard from "./BookCard";
+import BookCard from "./BookCard"; // import your existing BookCard
 
 export default function MyBooks() {
   const [items, setItems] = useState([]);
@@ -26,35 +26,23 @@ export default function MyBooks() {
   // Actions
   const doReturn = async (borrowId) => {
     if (!window.confirm("Return this book?")) return;
-    try {
-      await api.post(`/books/return/${borrowId}`);
-      fetchBooks();
-    } catch (err) {
-      alert(err?.response?.data?.error || "Failed");
-    }
+    await api.post(`/books/return/${borrowId}`);
+    fetchBooks();
   };
 
   const cancelPending = async (borrowId) => {
     if (!window.confirm("Cancel this pending request?")) return;
-    try {
-      await api.delete(`/books/cancel-pending/${borrowId}`);
-      fetchBooks();
-    } catch (err) {
-      alert(err?.response?.data?.error || "Failed");
-    }
+    await api.delete(`/books/cancel-pending/${borrowId}`);
+    fetchBooks();
   };
 
   const deleteReturned = async (borrowId) => {
     if (!window.confirm("Delete this returned record?")) return;
-    try {
-      await api.delete(`/books/delete-returned/${borrowId}`);
-      fetchBooks();
-    } catch (err) {
-      alert(err?.response?.data?.error || "Failed");
-    }
+    await api.delete(`/books/delete-returned/${borrowId}`);
+    fetchBooks();
   };
 
-  // Filtering + pagination
+  // Filter + paginate
   const filterBooks = (status) => {
     const query = queries[status].toLowerCase();
     const all = items.filter((i) => i.status === status);
@@ -80,14 +68,12 @@ export default function MyBooks() {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-6 bg-gradient-to-b from-blue-50 to-white">
+    <div className="flex flex-col items-center min-h-screen p-6 bg-blue-50">
       <div className="w-full max-w-6xl space-y-6">
-        <h1 className="text-3xl font-bold mb-6 text-center text-blue-900">
-          My Books
-        </h1>
+        <h1 className="text-3xl font-bold text-center text-blue-900">My Books</h1>
 
         {/* Tabs */}
-        <div className="flex justify-center space-x-4 mb-6 flex-wrap">
+        <div className="flex justify-center space-x-4">
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -103,79 +89,57 @@ export default function MyBooks() {
           ))}
         </div>
 
-        {/* Search bar */}
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder={`Search ${activeTab} books...`}
-            value={queries[activeTab]}
-            onChange={(e) =>
-              setQueries({ ...queries, [activeTab]: e.target.value })
-            }
-            className="w-full p-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
+        {/* Search */}
+        <input
+          type="text"
+          placeholder={`Search ${activeTab} books...`}
+          value={queries[activeTab]}
+          onChange={(e) => setQueries({ ...queries, [activeTab]: e.target.value })}
+          className="w-full p-2 border rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400"
+        />
 
-        {/* Book cards grid */}
-        {shownBooks.length > 0 ? (
-          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {shownBooks.map((i) => (
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {shownBooks.length > 0 ? (
+            shownBooks.map((i) => (
               <BookCard
                 key={i.borrow_id}
-                book={{
-                  id: i.book_id,
-                  title: i.title,
-                  author: i.author,
-                  photo_url: i.photo_url || null,
-                  description: i.description || "",
-                  available_copies: i.available_copies || 0,
-                }}
-                // Override actions depending on activeTab
-                onRequest={
+                book={i} // reuse same card design
+                onRequest={null}
+                onEdit={null}
+                onDelete={
                   activeTab === "pending"
                     ? () => cancelPending(i.borrow_id)
-                    : undefined
-                }
-                onEdit={
-                  activeTab === "borrowed"
+                    : activeTab === "borrowed"
                     ? () => doReturn(i.borrow_id)
-                    : undefined
+                    : () => deleteReturned(i.borrow_id)
                 }
-                onDelete={
-                  activeTab === "returned"
-                    ? () => deleteReturned(i.borrow_id)
-                    : undefined
-                }
-                isAdmin={false} // student side
+                isAdmin={false}
               />
-            ))}
-          </div>
-        ) : (
-          <div className="text-gray-500 text-center">
-            No {activeTab} books
-          </div>
-        )}
+            ))
+          ) : (
+            <div className="col-span-full text-center text-gray-500">
+              No {activeTab} books
+            </div>
+          )}
+        </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center space-x-2 mt-4">
             <button
               disabled={pages[activeTab] === 1}
-              onClick={() =>
-                setPages({ ...pages, [activeTab]: pages[activeTab] - 1 })
-              }
+              onClick={() => setPages({ ...pages, [activeTab]: pages[activeTab] - 1 })}
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               Prev
             </button>
-            <span className="px-3 py-1">
+            <span>
               Page {pages[activeTab]} of {totalPages}
             </span>
             <button
               disabled={pages[activeTab] === totalPages}
-              onClick={() =>
-                setPages({ ...pages, [activeTab]: pages[activeTab] + 1 })
-              }
+              onClick={() => setPages({ ...pages, [activeTab]: pages[activeTab] + 1 })}
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               Next
