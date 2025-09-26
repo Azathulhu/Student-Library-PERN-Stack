@@ -8,7 +8,7 @@ export default function MyBooks() {
   // search + pagination states for each tab
   const [queries, setQueries] = useState({ pending: "", borrowed: "", returned: "" });
   const [pages, setPages] = useState({ pending: 1, borrowed: 1, returned: 1 });
-  const limit = 6;
+  const limit = 5;
 
   const fetchBooks = async () => {
     try {
@@ -64,8 +64,7 @@ export default function MyBooks() {
     const filtered = all.filter(
       (i) =>
         i.title.toLowerCase().includes(query) ||
-        (i.author && i.author.toLowerCase().includes(query)) ||
-        (i.description && i.description.toLowerCase().includes(query))
+        (i.author && i.author.toLowerCase().includes(query))
     );
 
     const page = pages[status];
@@ -94,7 +93,7 @@ export default function MyBooks() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="w-full max-w-6xl space-y-6">
+      <div className="w-full max-w-4xl space-y-6">
         <h1 className="text-3xl font-bold mb-6 text-center text-bubbly-deep">
           My Books
         </h1>
@@ -130,84 +129,89 @@ export default function MyBooks() {
         </div>
 
         {/* List */}
-        {shownBooks.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {shownBooks.map((i) => (
+        <div className="space-y-3">
+          {shownBooks.length > 0 ? (
+            shownBooks.map((i) => (
               <div
                 key={i.borrow_id}
-                className={`rounded-xl shadow-md overflow-hidden transform transition duration-300 hover:scale-105 hover:shadow-lg ${
+                className={`p-4 rounded-bubbly shadow-sm flex gap-4 items-center ${
                   activeTab === "pending"
-                    ? "bg-yellow-50"
+                    ? "bg-yellow-100/70"
                     : activeTab === "borrowed"
-                    ? "bg-white"
-                    : "bg-green-50"
+                    ? "bg-white/90"
+                    : "bg-green-100/70"
                 }`}
               >
-                {/* Book Image */}
-                {i.cover_url && (
-                  <img
-                    src={i.cover_url}
-                    alt={i.title}
-                    className="h-48 w-full object-cover"
-                  />
-                )}
+                {/* Book image */}
+                <div className="w-20 h-28 flex-shrink-0 bg-gray-200 rounded overflow-hidden flex items-center justify-center">
+                  {i.photo_url ? (
+                    <img
+                      src={i.photo_url}
+                      alt={i.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs text-gray-400">No Image</span>
+                  )}
+                </div>
 
-                <div className="p-4 flex flex-col justify-between h-full">
-                  <div>
-                    <h2 className="text-lg font-bold mb-1">{i.title}</h2>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {i.author || "Unknown Author"}
+                {/* Book info */}
+                <div className="flex-1">
+                  <div className="font-bold text-blue-900">{i.title}</div>
+                  <div className="text-sm text-blue-700">{i.author}</div>
+                  {i.description && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      {i.description.length > 120
+                        ? i.description.slice(0, 120) + "…"
+                        : i.description}
                     </p>
-                    <p className="text-sm text-gray-700 line-clamp-3">
-                      {i.description || "No description available."}
-                    </p>
-
-                    <div className="text-xs text-gray-500 mt-2">
-                      {activeTab === "pending" && <>Requested at: {i.requested_at}</>}
-                      {activeTab === "borrowed" && <>Due: {i.due_date}</>}
-                      {activeTab === "returned" && <>Returned at: {i.returned_at}</>}
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    {activeTab === "pending" && (
-                      <button
-                        onClick={() => cancelPending(i.borrow_id)}
-                        className="w-full bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-bubbly font-bold transition"
-                      >
-                        Cancel Request
-                      </button>
-                    )}
-                    {activeTab === "borrowed" && (
-                      <button
-                        onClick={() => doReturn(i.borrow_id)}
-                        className="w-full bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-bubbly font-bold transition"
-                      >
-                        Return Book
-                      </button>
-                    )}
-                    {activeTab === "returned" && (
-                      <button
-                        onClick={() => deleteReturned(i.borrow_id)}
-                        className="w-full bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-bubbly font-bold transition"
-                      >
-                        Delete Record
-                      </button>
-                    )}
+                  )}
+                  <div className="mt-3 text-xs text-gray-600">
+                    {activeTab === "pending" && `Requested at: ${i.requested_at}`}
+                    {activeTab === "borrowed" && `Due: ${i.due_date}`}
+                    {activeTab === "returned" && `Returned at: ${i.returned_at}`}
                   </div>
                 </div>
+
+                {/* Actions */}
+                <div className="flex flex-col gap-2">
+                  {activeTab === "pending" && (
+                    <button
+                      onClick={() => cancelPending(i.borrow_id)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  {activeTab === "borrowed" && (
+                    <button
+                      onClick={() => doReturn(i.borrow_id)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                    >
+                      Return
+                    </button>
+                  )}
+                  {activeTab === "returned" && (
+                    <button
+                      onClick={() => deleteReturned(i.borrow_id)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-gray-500 text-center">
-            No {activeTab} books
-          </div>
-        )}
+            ))
+          ) : (
+            <div className="text-gray-500 text-center">
+              No {activeTab} books
+            </div>
+          )}
+        </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center space-x-2 mt-6">
+          <div className="flex justify-center space-x-2 mt-4">
             <button
               disabled={pages[activeTab] === 1}
               onClick={() =>
