@@ -32,7 +32,7 @@ export default function Admin() {
     { id: "mail", label: "Send Mail" },
   ];
 
-  const handlePendingSearch = async (q = pendingSearch, p = pendingPage) => {
+  /*const handlePendingSearch = async (q = pendingSearch, p = pendingPage) => {
     try {
       const { data } = await api.get(`/books/admin-borrowed-search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}&status=pending`);
       setPending(data.data);
@@ -61,28 +61,14 @@ export default function Admin() {
     }
   };
 
-  /*const loadPending = async () => {
+  const loadPending = async () => {
     try {
       const { data } = await api.get('/books/pending');
       setPending(data);
     } catch (err) {
       console.error(err);
     }
-  };*/
-    // Load pending requests properly
-    const loadPending = async (q = pendingSearch, p = pendingPage) => {
-      try {
-        const { data } = await api.get(
-          `/books/admin-borrowed-search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}&status=pending`
-        );
-        console.log("PENDING DATA:", data.data); // debug
-        setPending(data.data);
-        setPendingTotal(data.total);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
+  };
 
   const searchBooks = async (q = search, p = page) => {
     try {
@@ -191,7 +177,88 @@ export default function Admin() {
   const handleSearch = () => {
     setPage(1);
     searchBooks(search, 1);
-  };
+  };*/
+  // --- Pending & Borrowed fetch with proper endpoint ---
+const handlePendingSearch = async (q = pendingSearch, p = pendingPage) => {
+  try {
+    const { data } = await api.get(
+      `/books/admin-borrowed-search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}&status=pending`
+    );
+    setPending(data.data);
+    setPendingTotal(data.total);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const handleBorrowedSearch = async (q = borrowedSearch, p = borrowedPage) => {
+  try {
+    const { data } = await api.get(
+      `/books/admin-borrowed-search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}&status=borrowed`
+    );
+    setBorrowed(data.data);
+    setBorrowedTotal(data.total);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// --- Always use this to reload pending list ---
+const loadPending = async () => {
+  await handlePendingSearch();
+};
+
+// --- Always use this to reload borrowed list ---
+const loadBorrowed = async () => {
+  await handleBorrowedSearch();
+};
+
+// --- Approve a pending request ---
+const approve = async (borrowId) => {
+  try {
+    await api.post(`/books/approve/${borrowId}`, { due_days: 7 });
+    await loadPending();  // ensures user_id stays
+    await loadBorrowed();
+    searchBooks(search, page);
+  } catch (err) {
+    alert(err?.response?.data?.error || 'Failed');
+  }
+};
+
+// --- Cancel a pending request ---
+const cancel = async (borrowId) => {
+  try {
+    await api.delete(`/books/cancel-pending/${borrowId}`);
+    await loadPending(); // ensures user_id stays
+    await loadBorrowed();
+    searchBooks(search, page);
+  } catch (err) {
+    alert(err?.response?.data?.error || 'Failed to cancel request');
+  }
+};
+
+// --- Force return borrowed book ---
+const handleForceReturn = async (borrowId) => {
+  if (window.confirm('Force return this book?')) {
+    try {
+      await api.post(`/books/force-return/${borrowId}`);
+      await loadBorrowed();
+      searchBooks(search, page);
+    } catch (err) {
+      alert(err?.response?.data?.error || "Failed to force return");
+    }
+  }
+};
+
+// --- Initial load ---
+useEffect(() => {
+  loadPending();
+  loadBorrowed();
+}, []);
+
+// --- Pagination triggers ---
+useEffect(() => { handlePendingSearch(); }, [pendingPage]);
+useEffect(() => { handleBorrowedSearch(); }, [borrowedPage]);
 
   
   return (
