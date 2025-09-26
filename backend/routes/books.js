@@ -192,7 +192,7 @@ router.get('/borrowed', authMiddleware, adminOnly, async (req, res) => {
     const sql = `SELECT b.id as borrow_id, bk.title, u.name, u.lrn, b.borrowed_at, b.due_date
                  FROM borrowed_books b
                  JOIN books bk ON b.book_id = bk.id
-                 LEFT JOIN users u ON b.user_id = u.id
+                 JOIN users u ON b.user_id = u.id
                  WHERE b.status='borrowed'
                  ORDER BY b.borrowed_at ASC`;
     const { rows } = await pool.query(sql);
