@@ -189,7 +189,7 @@ export default function Admin() {
           <select
             value={activeTab}
             onChange={(e) => setActiveTab(e.target.value)}
-            className="w-full px-4 py-2 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition"
+            className="w-full px-4 py-2 rounded-xl bg-blue-100 text-blue-800 font-semibold shadow-md focus:ring-2 focus:ring-blue-300 transition-colors"
           >
             {tabs.map((tab) => (
               <option key={tab.id} value={tab.id}>
@@ -200,16 +200,21 @@ export default function Admin() {
         </div>
       
         {/* Scrollable horizontal tabs for small to large screens */}
-        <div className="hidden sm:flex overflow-x-auto gap-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+        <div className="hidden sm:flex gap-3 overflow-x-auto scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-blue-50">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-shrink-0 px-4 py-2 rounded-bubbly font-bold transition whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "bg-bubbly-blue text-white"
-                  : "bg-gray-200 hover:bg-gray-300 text-bubbly-dark"
-              }`}
+              className={`
+                flex-shrink-0 whitespace-nowrap px-5 py-2 rounded-2xl font-bold transition-all
+                shadow-md hover:shadow-xl hover:scale-105
+                focus:outline-none focus:ring-2 focus:ring-blue-200
+                ${
+                  activeTab === tab.id
+                    ? "bg-blue-200 text-blue-900 ring-2 ring-blue-300"
+                    : "bg-blue-100 text-blue-700 hover:bg-blue-150"
+                }
+              `}
             >
               {tab.label}
             </button>
@@ -228,8 +233,6 @@ export default function Admin() {
             transition={{ duration: 0.3 }}
             className="mb-6 bg-white/90 backdrop-blur-sm p-5 sm:p-6 rounded-bubbly shadow-bubbly max-w-lg mx-auto"
           >
-            {/* Add Book Section */}
-            {/* Your existing Add Book JSX goes here */}
             {/* Add Book */}
             <section className="mb-6 bg-white/90 backdrop-blur-sm p-5 sm:p-6 rounded-bubbly shadow-bubbly max-w-lg mx-auto">
               <h2 className="font-bold text-bubbly-deep mb-4 text-lg">Add Book</h2>
