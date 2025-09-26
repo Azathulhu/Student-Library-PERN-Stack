@@ -1,41 +1,41 @@
 import React from "react";
 
-// ---- BookCard Component ----
-function BookCard({ book, onRequest, onEdit, onDelete, isAdmin }) {
-  // Limit description length for display
+export default function BookCard({ book, onRequest, onEdit, onDelete, isAdmin }) {
   const truncate = (text, max = 100) =>
     text.length > max ? text.slice(0, max) + "…" : text;
 
   return (
     <div
-      className="w-full bg-gradient-to-br from-blue-100 via-blue-200 to-blue-50 
-                 rounded-2xl shadow-lg hover:shadow-xl 
-                 transition-transform transform hover:scale-105 duration-300 
-                 flex flex-col overflow-hidden border border-blue-50"
+      className="
+        bg-gradient-to-br from-blue-100 via-blue-50 to-blue-200
+        rounded-2xl shadow-lg hover:shadow-2xl
+        transform hover:scale-105 transition-transform duration-300
+        flex flex-col
+        w-60 md:w-64 lg:w-72
+        m-4
+      "
     >
       {/* Book cover */}
-      <div className="h-44 sm:h-40 bg-blue-50 rounded-t-2xl flex items-center justify-center overflow-hidden">
+      <div className="h-48 bg-white rounded-t-2xl flex items-center justify-center overflow-hidden">
         {book.photo_url ? (
           <img
             src={book.photo_url}
             alt={book.title}
-            className="h-full w-auto object-cover transition-transform transform hover:scale-110 duration-300"
+            className="h-full w-full object-cover rounded-t-2xl"
           />
         ) : (
-          <span className="text-xs text-blue-300">No Image</span>
+          <span className="text-xs text-gray-400">No Image</span>
         )}
       </div>
 
       {/* Book info */}
       <div className="p-4 flex-1 flex flex-col">
-        <h3 className="font-bold text-lg text-blue-900">{book.title}</h3>
-        <p className="text-sm text-blue-700">{book.author}</p>
-
+        <h3 className="font-bold text-lg text-gray-800 mb-1">{book.title}</h3>
+        <p className="text-sm text-gray-600 mb-2">{book.author}</p>
         {book.description && (
-          <p className="text-xs text-blue-500 mt-2">{truncate(book.description)}</p>
+          <p className="text-xs text-gray-500 mb-2">{truncate(book.description)}</p>
         )}
-
-        <p className="text-xs text-blue-400 mt-2">
+        <p className="text-xs text-gray-500 mb-3">
           Available: {book.available_copies}
         </p>
 
@@ -44,13 +44,13 @@ function BookCard({ book, onRequest, onEdit, onDelete, isAdmin }) {
           <div className="flex gap-2 mt-auto">
             <button
               onClick={() => onEdit && onEdit(book)}
-              className="bg-gradient-to-r from-blue-300 to-blue-400 text-white px-3 py-1 rounded-full shadow hover:brightness-110 transition duration-200"
+              className="bg-blue-400 hover:bg-blue-500 text-white px-3 py-1 rounded-full transition-colors duration-200"
             >
               Edit
             </button>
             <button
               onClick={() => onDelete && onDelete(book.id)}
-              className="bg-gradient-to-r from-red-300 to-red-400 text-white px-3 py-1 rounded-full shadow hover:brightness-110 transition duration-200"
+              className="bg-red-400 hover:bg-red-500 text-white px-3 py-1 rounded-full transition-colors duration-200"
             >
               Delete
             </button>
@@ -59,36 +59,12 @@ function BookCard({ book, onRequest, onEdit, onDelete, isAdmin }) {
           <button
             disabled={book.available_copies < 1}
             onClick={() => onRequest && onRequest(book.id)}
-            className="mt-auto w-full bg-gradient-to-r from-blue-300 to-blue-400 
-                       text-white py-2 rounded-2xl shadow-lg 
-                       hover:brightness-110 disabled:opacity-50 transition duration-200"
+            className="mt-auto w-full bg-blue-400 hover:bg-blue-500 text-white py-2 rounded-full shadow transition-colors duration-200 disabled:opacity-50"
           >
             Borrow
           </button>
         )}
       </div>
-    </div>
-  );
-}
-
-// ---- BooksGrid Component (wrapper for all cards) ----
-export default function BooksGrid({ books, onRequest, onEdit, onDelete, isAdmin }) {
-  return (
-    <div className="p-4 grid gap-6
-                    grid-cols-1 
-                    sm:grid-cols-2 
-                    md:grid-cols-3 
-                    lg:grid-cols-4">
-      {books.map((book) => (
-        <BookCard
-          key={book.id}
-          book={book}
-          onRequest={onRequest}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          isAdmin={isAdmin}
-        />
-      ))}
     </div>
   );
 }
