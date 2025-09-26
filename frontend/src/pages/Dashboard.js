@@ -12,8 +12,8 @@ export default function Dashboard() {
   const loc = useLocation();
   const query = new URLSearchParams(loc.search).get("q") || "";
 
-  const [confirmRequest, setConfirmRequest] = React.useState(null);
-  const [messageModal, setMessageModal] = React.useState(null); 
+  const [confirmRequest, setConfirmRequest] = useState(null);
+  const [messageModal, setMessageModal] = useState(null);
 
   const loadBooks = async (q = search || query, p = page) => {
     try {
@@ -37,10 +37,10 @@ export default function Dashboard() {
   const handleConfirmRequest = async (bookId) => {
     try {
       await api.post(`/books/request/${bookId}`);
-      setConfirmRequest(null); // close the confirm modal
+      setConfirmRequest(null);
       setMessageModal({ type: "success", text: "Borrow request sent. Wait for admin approval." });
     } catch (err) {
-      setConfirmRequest(null); // close confirm modal
+      setConfirmRequest(null);
       setMessageModal({ type: "error", text: err?.response?.data?.error || "Failed to request." });
     }
   };
@@ -50,23 +50,43 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="px-8 py-6">
-      <h1 className="text-2xl font-bold mb-6">Book Lists</h1>
+    <div className="px-4 md:px-8 py-6">
+      <h1 className="text-2xl font-bold mb-4 md:mb-6">Book Lists</h1>
+
+      {/* Search Bar */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-3 sm:items-center">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search books..."
+          className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
+        <button
+          onClick={() => loadBooks(search, 1)}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+        >
+          Search
+        </button>
+      </div>
 
       {books.length === 0 ? (
         <div className="text-gray-500">No books found.</div>
       ) : (
         <>
-          <div className="grid grid-cols-4 gap-6">
+          {/* Responsive Book Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {books.map((b) => (
               <BookCard key={b.id} book={b} onRequest={request} />
             ))}
           </div>
-          <div className="flex justify-center gap-4 mt-6">
+
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
             <button
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 transition"
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50"
             >
               Prev
             </button>
@@ -74,58 +94,59 @@ export default function Dashboard() {
             <button
               disabled={page >= Math.ceil(total / limit)}
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 transition"
+              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 transition disabled:opacity-50"
             >
               Next
             </button>
-            {/* Message Modal */}
-            {messageModal && (
-              <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-                <div className={`bg-white rounded-xl p-6 w-96 shadow-lg`}>
-                  <h2 className="text-lg font-bold mb-4">
-                    {messageModal.type === "success" ? "Success" : "Error"}
-                  </h2>
-                  <p className="mb-6">{messageModal.text}</p>
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => setMessageModal(null)}
-                      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                      OK
-                    </button>
-                  </div>
+          </div>
+
+          {/* Message Modal */}
+          {messageModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 px-4">
+              <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-lg">
+                <h2 className="text-lg font-bold mb-4">
+                  {messageModal.type === "success" ? "Success" : "Error"}
+                </h2>
+                <p className="mb-6">{messageModal.text}</p>
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setMessageModal(null)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    OK
+                  </button>
                 </div>
               </div>
-            )}
-          </div>     
-            {/* Request Confirmation Modal */}
-            {confirmRequest && (
-              <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
-                <div className="bg-white rounded-xl p-6 w-96 shadow-lg">
-                  <h2 className="text-lg font-bold mb-4">Confirm Borrow</h2>
-                  <p className="mb-6">
-                    Are you sure you want to send a borrow request for this book?
-                  </p>
-                  <div className="flex justify-end gap-3">
-                    <button
-                      onClick={() => setConfirmRequest(null)}
-                      className="px-4 py-2 border rounded hover:bg-gray-100"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => handleConfirmRequest(confirmRequest)}
-                      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                      Confirm
-                    </button>
-                  </div>
+            </div>
+          )}
+
+          {/* Request Confirmation Modal */}
+          {confirmRequest && (
+            <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 px-4">
+              <div className="bg-white rounded-xl p-6 w-full max-w-sm shadow-lg">
+                <h2 className="text-lg font-bold mb-4">Confirm Borrow</h2>
+                <p className="mb-6">
+                  Are you sure you want to send a borrow request for this book?
+                </p>
+                <div className="flex justify-end gap-3 flex-wrap">
+                  <button
+                    onClick={() => setConfirmRequest(null)}
+                    className="px-4 py-2 border rounded hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleConfirmRequest(confirmRequest)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Confirm
+                  </button>
                 </div>
               </div>
-            )}
+            </div>
+          )}
         </>
       )}
     </div>
-    
   );
 }
