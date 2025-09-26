@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
+import BookCard from "../components/BookCard";
 
 export default function MyBooks() {
   const [items, setItems] = useState([]);
   const [activeTab, setActiveTab] = useState("pending");
 
-  // search + pagination states for each tab
   const [queries, setQueries] = useState({ pending: "", borrowed: "", returned: "" });
   const [pages, setPages] = useState({ pending: 1, borrowed: 1, returned: 1 });
   const limit = 5;
@@ -63,7 +63,7 @@ export default function MyBooks() {
     const all = items.filter((i) => i.status === status);
     const filtered = all.filter(
       (i) =>
-        (i.title && i.title.toLowerCase().includes(query)) ||
+        i.title.toLowerCase().includes(query) ||
         (i.author && i.author.toLowerCase().includes(query))
     );
 
@@ -83,20 +83,9 @@ export default function MyBooks() {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div
-      className="flex flex-col items-center min-h-screen p-6"
-      style={{
-        backgroundImage:
-          'url(https://scontent.fcrk2-1.fna.fbcdn.net/v/t39.30808-6/517793024_122237938226024229_2789074869652155638_n.jpg?... )',
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      <div className="w-full max-w-4xl space-y-6 bg-white/50 p-6 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold mb-6 text-center text-blue-800">
-          My Books
-        </h1>
+    <div className="flex flex-col items-center min-h-screen p-6">
+      <div className="w-full max-w-4xl space-y-6">
+        <h1 className="text-3xl font-bold mb-6 text-center text-bubbly-deep">My Books</h1>
 
         {/* Tabs */}
         <div className="flex justify-center space-x-4 mb-6">
@@ -104,7 +93,7 @@ export default function MyBooks() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 rounded font-semibold transition ${
+              className={`px-4 py-2 rounded-bubbly font-semibold transition ${
                 activeTab === tab.key
                   ? "bg-blue-500 text-white shadow-md"
                   : "bg-gray-200 hover:bg-gray-300"
@@ -115,94 +104,39 @@ export default function MyBooks() {
           ))}
         </div>
 
-        {/* Search bar */}
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder={`Search ${activeTab} books...`}
-            value={queries[activeTab]}
-            onChange={(e) =>
-              setQueries({ ...queries, [activeTab]: e.target.value })
-            }
-            className="w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
+        {/* Search */}
+        <input
+          type="text"
+          placeholder={`Search ${activeTab} books...`}
+          value={queries[activeTab]}
+          onChange={(e) => setQueries({ ...queries, [activeTab]: e.target.value })}
+          className="w-full p-2 border rounded-bubbly shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+        />
 
-        {/* List */}
-        <div className="space-y-3">
-          {shownBooks.length > 0 ? (
-            shownBooks.map((i) => (
-              <div
-                key={i.borrow_id}
-                className={`p-4 rounded shadow-sm flex justify-between items-center ${
-                  activeTab === "pending"
-                    ? "bg-yellow-100/70"
-                    : activeTab === "borrowed"
-                    ? "bg-white/90"
-                    : "bg-green-100/70"
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  {i.photo_url && (
-                    <img
-                      src={i.photo_url}
-                      alt={i.title}
-                      className="w-16 h-20 object-cover rounded shadow"
-                    />
-                  )}
-                  <div>
-                    <div className="font-bold text-lg">{i.title}</div>
-                    {i.author && <div className="text-sm text-gray-700">{i.author}</div>}
-                    {i.description && <div className="text-sm text-gray-600">{i.description}</div>}
-                    <div className="text-xs text-gray-500 mt-1">
-                      {activeTab === "pending" && `Requested at: ${new Date(i.requested_at).toLocaleString()}`}
-                      {activeTab === "borrowed" && `Due: ${new Date(i.due_date).toLocaleDateString()}`}
-                      {activeTab === "returned" && `Returned at: ${new Date(i.returned_at).toLocaleString()}`}
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  {activeTab === "pending" && (
-                    <button
-                      onClick={() => cancelPending(i.borrow_id)}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded font-bold transition"
-                    >
-                      Cancel
-                    </button>
-                  )}
-                  {activeTab === "borrowed" && (
-                    <button
-                      onClick={() => doReturn(i.borrow_id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded font-bold transition"
-                    >
-                      Return
-                    </button>
-                  )}
-                  {activeTab === "returned" && (
-                    <button
-                      onClick={() => deleteReturned(i.borrow_id)}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded font-bold transition"
-                    >
-                      Delete
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-gray-500 text-center">No {activeTab} books</div>
-          )}
-        </div>
+        {/* Book Grid using BookCard */}
+        {shownBooks.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {shownBooks.map((b) => (
+              <BookCard
+                key={b.borrow_id}
+                book={b}
+                activeTab={activeTab}
+                onCancel={cancelPending}
+                onReturn={doReturn}
+                onDelete={deleteReturned}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-gray-500 text-center">No {activeTab} books</div>
+        )}
 
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center space-x-2 mt-4">
             <button
               disabled={pages[activeTab] === 1}
-              onClick={() =>
-                setPages({ ...pages, [activeTab]: pages[activeTab] - 1 })
-              }
+              onClick={() => setPages({ ...pages, [activeTab]: pages[activeTab] - 1 })}
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               Prev
@@ -212,9 +146,7 @@ export default function MyBooks() {
             </span>
             <button
               disabled={pages[activeTab] === totalPages}
-              onClick={() =>
-                setPages({ ...pages, [activeTab]: pages[activeTab] + 1 })
-              }
+              onClick={() => setPages({ ...pages, [activeTab]: pages[activeTab] + 1 })}
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               Next
