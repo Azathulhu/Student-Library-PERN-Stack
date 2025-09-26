@@ -183,20 +183,38 @@ export default function Admin() {
   return (
     <div className="max-w-6xl mx-auto p-4">
       {/* Tabs */}
-      <div className="flex gap-2 mb-4">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-bubbly font-bold transition ${
-              activeTab === tab.id
-                ? "bg-bubbly-blue text-white"
-                : "bg-gray-200 hover:bg-gray-300 text-bubbly-dark"
-            }`}
+      <div className="mb-4">
+        {/* Mobile dropdown for very small screens */}
+        <div className="sm:hidden mb-2">
+          <select
+            value={activeTab}
+            onChange={(e) => setActiveTab(e.target.value)}
+            className="w-full px-4 py-2 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition"
           >
-            {tab.label}
-          </button>
-        ))}
+            {tabs.map((tab) => (
+              <option key={tab.id} value={tab.id}>
+                {tab.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      
+        {/* Scrollable horizontal tabs for small to large screens */}
+        <div className="hidden sm:flex overflow-x-auto gap-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-shrink-0 px-4 py-2 rounded-bubbly font-bold transition whitespace-nowrap ${
+                activeTab === tab.id
+                  ? "bg-bubbly-blue text-white"
+                  : "bg-gray-200 hover:bg-gray-300 text-bubbly-dark"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Sections with animation */}
