@@ -13,7 +13,7 @@ export default function MyBooks() {
   const fetchBooks = async () => {
     try {
       const { data } = await api.get("/books/my");
-      setItems(Array.isArray(data) ? data : []);
+      setItems(data);
     } catch (err) {
       console.error(err);
     }
@@ -57,41 +57,21 @@ export default function MyBooks() {
     }
   };
 
-  // filter + paginate
+  // Filter + paginate
   const filterBooks = (status) => {
-    const q = (queries[status] || "").trim().toLowerCase();
-    const all = items.filter((i) => (i.status || "") === status);
-    const filtered = all.filter((i) => {
-      const title = (i.title || "").toLowerCase();
-      const author = (i.author || "").toLowerCase();
-      const desc = (i.description || "").toLowerCase();
-      return title.includes(q) || author.includes(q) || desc.includes(q);
-    });
+    const query = queries[status].toLowerCase();
+    const all = items.filter((i) => i.status === status);
+    const filtered = all.filter(
+      (i) =>
+        (i.title && i.title.toLowerCase().includes(query)) ||
+        (i.author && i.author.toLowerCase().includes(query))
+    );
 
-    // ensure page is at least 1
-    const page = Math.max(1, pages[status] || 1);
+    const page = pages[status];
     const start = (page - 1) * limit;
     const end = start + limit;
     return { data: filtered.slice(start, end), total: filtered.length };
   };
-
-  // When items/queries/activeTab change, clamp pages[activeTab] to valid range
-  useEffect(() => {
-    const q = (queries[activeTab] || "").trim().toLowerCase();
-    const all = items.filter((i) => (i.status || "") === activeTab);
-    const filteredCount = all.filter((i) => {
-      const title = (i.title || "").toLowerCase();
-      const author = (i.author || "").toLowerCase();
-      const desc = (i.description || "").toLowerCase();
-      return title.includes(q) || author.includes(q) || desc.includes(q);
-    }).length;
-
-    const computedTotalPages = Math.max(1, Math.ceil(filteredCount / limit));
-    if ((pages[activeTab] || 1) > computedTotalPages) {
-      setPages((prev) => ({ ...prev, [activeTab]: computedTotalPages }));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, queries, activeTab]);
 
   const tabs = [
     { key: "pending", label: "Pending Books" },
@@ -113,8 +93,8 @@ export default function MyBooks() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="w-full max-w-4xl space-y-6">
-        <h1 className="text-3xl font-bold mb-6 text-center text-bubbly-deep">
+      <div className="w-full max-w-4xl space-y-6 bg-white/50 p-6 rounded-xl shadow-lg">
+        <h1 className="text-3xl font-bold mb-6 text-center text-blue-800">
           My Books
         </h1>
 
@@ -124,7 +104,7 @@ export default function MyBooks() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 rounded-bubbly font-semibold transition ${
+              className={`px-4 py-2 rounded font-semibold transition ${
                 activeTab === tab.key
                   ? "bg-blue-500 text-white shadow-md"
                   : "bg-gray-200 hover:bg-gray-300"
@@ -141,8 +121,10 @@ export default function MyBooks() {
             type="text"
             placeholder={`Search ${activeTab} books...`}
             value={queries[activeTab]}
-            onChange={(e) => setQueries({ ...queries, [activeTab]: e.target.value })}
-            className="w-full p-2 border rounded-bubbly shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            onChange={(e) =>
+              setQueries({ ...queries, [activeTab]: e.target.value })
+            }
+            className="w-full p-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
 
@@ -152,7 +134,7 @@ export default function MyBooks() {
             shownBooks.map((i) => (
               <div
                 key={i.borrow_id}
-                className={`p-4 rounded-bubbly shadow-sm flex gap-4 items-center ${
+                className={`p-4 rounded shadow-sm flex justify-between items-center ${
                   activeTab === "pending"
                     ? "bg-yellow-100/70"
                     : activeTab === "borrowed"
@@ -160,68 +142,51 @@ export default function MyBooks() {
                     : "bg-green-100/70"
                 }`}
               >
-                {/* Book image */}
-                <div className="w-20 h-28 flex-shrink-0 bg-gray-200 rounded overflow-hidden flex items-center justify-center">
-                  {i.photo_url ? (
+                <div className="flex items-center gap-4">
+                  {i.photo_url && (
                     <img
                       src={i.photo_url}
-                      alt={i.title || "book"}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <img
-                      src="https://via.placeholder.com/120x168?text=No+Image"
-                      alt="no image"
-                      className="w-full h-full object-cover"
+                      alt={i.title}
+                      className="w-16 h-20 object-cover rounded shadow"
                     />
                   )}
-                </div>
-
-                {/* Book info */}
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-blue-900 truncate">{i.title}</div>
-                  <div className="text-sm text-blue-700 truncate">{i.author}</div>
-                  {i.description && (
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-3">
-                      {i.description.length > 140 ? i.description.slice(0, 140) + "…" : i.description}
-                    </p>
-                  )}
-
-                  <div className="mt-2 text-xs text-gray-600">
-                    {activeTab === "pending" ? (
-                      <span>Requested at: {i.requested_at || "-"}</span>
-                    ) : activeTab === "borrowed" ? (
-                      <span>Due: {i.due_date || "-"}</span>
-                    ) : activeTab === "returned" ? (
-                      <span>Returned at: {i.returned_at || "-"}</span>
-                    ) : null}
+                  <div>
+                    <div className="font-bold text-lg">{i.title}</div>
+                    {i.author && <div className="text-sm text-gray-700">{i.author}</div>}
+                    {i.description && <div className="text-sm text-gray-600">{i.description}</div>}
+                    <div className="text-xs text-gray-500 mt-1">
+                      {activeTab === "pending" && `Requested at: ${new Date(i.requested_at).toLocaleString()}`}
+                      {activeTab === "borrowed" && `Due: ${new Date(i.due_date).toLocaleDateString()}`}
+                      {activeTab === "returned" && `Returned at: ${new Date(i.returned_at).toLocaleString()}`}
+                    </div>
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex flex-col gap-2">
-                  {activeTab === "pending" ? (
+                <div>
+                  {activeTab === "pending" && (
                     <button
                       onClick={() => cancelPending(i.borrow_id)}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded font-bold transition"
                     >
                       Cancel
                     </button>
-                  ) : activeTab === "borrowed" ? (
+                  )}
+                  {activeTab === "borrowed" && (
                     <button
                       onClick={() => doReturn(i.borrow_id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded font-bold transition"
                     >
                       Return
                     </button>
-                  ) : activeTab === "returned" ? (
+                  )}
+                  {activeTab === "returned" && (
                     <button
                       onClick={() => deleteReturned(i.borrow_id)}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded font-bold transition"
                     >
                       Delete
                     </button>
-                  ) : null}
+                  )}
                 </div>
               </div>
             ))
@@ -234,23 +199,21 @@ export default function MyBooks() {
         {totalPages > 1 && (
           <div className="flex justify-center space-x-2 mt-4">
             <button
-              disabled={(pages[activeTab] || 1) === 1}
+              disabled={pages[activeTab] === 1}
               onClick={() =>
-                setPages((prev) => ({ ...prev, [activeTab]: Math.max(1, (prev[activeTab] || 1) - 1) }))
+                setPages({ ...pages, [activeTab]: pages[activeTab] - 1 })
               }
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
               Prev
             </button>
-
             <span className="px-3 py-1">
-              Page {pages[activeTab] || 1} of {totalPages}
+              Page {pages[activeTab]} of {totalPages}
             </span>
-
             <button
-              disabled={(pages[activeTab] || 1) >= totalPages}
+              disabled={pages[activeTab] === totalPages}
               onClick={() =>
-                setPages((prev) => ({ ...prev, [activeTab]: Math.min(totalPages, (prev[activeTab] || 1) + 1) }))
+                setPages({ ...pages, [activeTab]: pages[activeTab] + 1 })
               }
               className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
             >
