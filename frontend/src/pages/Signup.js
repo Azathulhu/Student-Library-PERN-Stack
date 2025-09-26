@@ -57,7 +57,7 @@ export default function Signup({ onLogin }) {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative w-[90%] sm:w-[450px] md:w-[500px] bg-white/10 rounded-3xl shadow-2xl px-6 sm:px-10 py-10 sm:py-12 flex flex-col items-center z-10 backdrop-blur-xl border border-white/20"
+        className="relative w-[90%] sm:w-[450px] md:w-[500px] max-h-[90vh] overflow-y-auto bg-white/10 rounded-3xl shadow-2xl px-6 sm:px-10 py-8 sm:py-10 flex flex-col items-center z-10 backdrop-blur-xl border border-white/20"
       >
         {/* Logo */}
         <motion.div
