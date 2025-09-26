@@ -69,14 +69,20 @@ export default function Admin() {
       console.error(err);
     }
   };*/
-    const loadPending = async () => {
-    try {
-      const { data } = await api.get('/books/pending');
-      setPending(data.data || data); // <- this ensures you grab the array
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    // Load pending requests properly
+    const loadPending = async (q = pendingSearch, p = pendingPage) => {
+      try {
+        const { data } = await api.get(
+          `/books/admin-borrowed-search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}&status=pending`
+        );
+        console.log("PENDING DATA:", data.data); // debug
+        setPending(data.data);
+        setPendingTotal(data.total);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
 
   const searchBooks = async (q = search, p = page) => {
     try {
