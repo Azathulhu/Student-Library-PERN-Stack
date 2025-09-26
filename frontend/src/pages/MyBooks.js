@@ -182,7 +182,7 @@ export default function MyBooks() {
               No {activeTab} books
             </div>
           )}
-        </div>*/
+        </div>
 
         {/* Pagination */}
         {totalPages > 1 && (
