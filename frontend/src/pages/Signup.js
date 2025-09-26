@@ -62,7 +62,7 @@ export default function Signup({ onLogin }) {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative w-[90%] max-w-lg bg-white/20 rounded-3xl shadow-2xl px-8 py-10 flex flex-col items-center z-10 backdrop-blur-xl border border-white/30"
+        className="relative w-[90%] max-w-md h-[90vh] max-h-[700px] bg-white/20 rounded-3xl shadow-2xl px-6 py-8 flex flex-col items-center z-10 backdrop-blur-xl border border-white/30"
       >
         {/* Logo */}
         <motion.div
@@ -78,41 +78,43 @@ export default function Signup({ onLogin }) {
           />
         </motion.div>
 
-        <h2 className="text-3xl font-extrabold text-white mb-2 tracking-wide">
+        <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2 tracking-wide text-center">
           Create Account
         </h2>
-        <p className="text-gray-200 mb-6 text-center">
+        <p className="text-gray-200 mb-4 text-center text-sm md:text-base">
           Register your BCSHS Library account
         </p>
 
-        {/* Input Fields */}
-        {inputFields.map((field, idx) => (
-          <motion.div key={idx} className="w-full relative mb-4">
-            <motion.input
-              type={field.type}
-              value={field.value}
-              onChange={(e) => field.set(e.target.value)}
-              placeholder=" "
-              whileFocus={{ scale: 1.03, boxShadow: "0 0 20px rgba(59,130,246,0.6)" }}
-              className="rounded-xl px-5 pt-5 pb-2 bg-white/70 text-gray-800 border-none shadow focus:outline-none w-full transition"
-            />
-            <label className="absolute left-5 top-2 text-gray-500 text-sm pointer-events-none transition-all duration-200 ease-in-out">
-              {field.placeholder}
-            </label>
-          </motion.div>
-        ))}
+        {/* Scrollable Inputs Container */}
+        <div className="w-full flex-1 overflow-y-auto space-y-4 pr-1">
+          {inputFields.map((field, idx) => (
+            <motion.div key={idx} className="w-full relative">
+              <motion.input
+                type={field.type}
+                value={field.value}
+                onChange={(e) => field.set(e.target.value)}
+                placeholder=" "
+                whileFocus={{ scale: 1.03, boxShadow: "0 0 20px rgba(59,130,246,0.6)" }}
+                className="rounded-xl px-5 pt-5 pb-2 bg-white/70 text-gray-800 border-none shadow focus:outline-none w-full transition"
+              />
+              <label className="absolute left-5 top-2 text-gray-500 text-sm pointer-events-none transition-all duration-200 ease-in-out">
+                {field.placeholder}
+              </label>
+            </motion.div>
+          ))}
+        </div>
 
         {/* Signup Button */}
         <motion.button
           whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(59,130,246,0.8)" }}
           whileTap={{ scale: 0.97 }}
-          className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-3 mt-2 shadow-lg transition w-full"
+          className="rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-3 mt-4 shadow-lg transition w-full"
         >
           Sign Up
         </motion.button>
 
         {/* Login Link */}
-        <div className="mt-6 text-gray-200 text-sm text-center">
+        <div className="mt-4 text-gray-200 text-sm text-center">
           <span>Already have an account? </span>
           <a href="#/login" className="text-blue-300 font-bold hover:underline">
             Login
