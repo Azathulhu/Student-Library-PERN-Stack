@@ -8,13 +8,15 @@ export default function Profile({ user, setUser }) {
     contact_number: user.contact_number || "",
   });
 
+  const [messageModal, setMessageModal] = useState(null);
+
   const save = async () => {
     try {
       const { data } = await api.put("/users/me", form);
       setUser(data);
-      alert("Profile saved");
+      setMessageModal({ type: "success", text: "Profile saved successfully." });
     } catch (err) {
-      alert(err?.response?.data?.error || "Failed");
+      setMessageModal({ type: "error", text: err?.response?.data?.error || "Failed to save profile." });
     }
   };
 
@@ -29,65 +31,87 @@ export default function Profile({ user, setUser }) {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="bg-white/90 backdrop-blur-sm rounded-bubbly shadow-bubbly p-8 w-full max-w-lg">
-        <h1 className="text-3xl font-bold mb-6 text-center text-bubbly-deep">Profile</h1>
+      <div className="bg-gradient-to-br from-blue-50 to-blue-100/80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full max-w-lg">
+        <h1 className="text-3xl font-bold mb-6 text-center text-blue-600 drop-shadow-md">
+          Profile
+        </h1>
 
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-bubbly-dark mb-1">LRN</label>
+          <label className="block text-sm font-semibold text-blue-700 mb-1">LRN</label>
           <input
             value={user.lrn}
             disabled
-            className="w-full p-3 rounded-bubbly shadow-bubbly border-none bg-gray-100"
+            className="w-full p-3 rounded-lg shadow-inner border-none bg-blue-100/50"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-bubbly-dark mb-1">Email</label>
+          <label className="block text-sm font-semibold text-blue-700 mb-1">Email</label>
           <input
             value={user.email}
             disabled
-            className="w-full p-3 rounded-bubbly shadow-bubbly border-none bg-gray-100"
+            className="w-full p-3 rounded-lg shadow-inner border-none bg-blue-100/50"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-bubbly-dark mb-1">Full Name</label>
+          <label className="block text-sm font-semibold text-blue-700 mb-1">Full Name</label>
           <input
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full p-3 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition"
+            className="w-full p-3 rounded-lg shadow-inner border-none focus:ring-2 focus:ring-blue-300 transition"
           />
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-semibold text-bubbly-dark mb-1">Grade Level - Strand</label>
+          <label className="block text-sm font-semibold text-blue-700 mb-1">Grade Level - Strand</label>
           <input
             value={form.grade_level_strand}
             onChange={(e) =>
               setForm({ ...form, grade_level_strand: e.target.value })
             }
-            className="w-full p-3 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition"
+            className="w-full p-3 rounded-lg shadow-inner border-none focus:ring-2 focus:ring-blue-300 transition"
           />
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-semibold text-bubbly-dark mb-1">Contact Number</label>
+          <label className="block text-sm font-semibold text-blue-700 mb-1">Contact Number</label>
           <input
             value={form.contact_number}
             onChange={(e) =>
               setForm({ ...form, contact_number: e.target.value })
             }
-            className="w-full p-3 rounded-bubbly shadow-bubbly border-none focus:ring-2 focus:ring-bubbly-blue transition"
+            className="w-full p-3 rounded-lg shadow-inner border-none focus:ring-2 focus:ring-blue-300 transition"
           />
         </div>
 
         <button
           onClick={save}
-          className="w-full bg-bubbly-blue hover:bg-bubbly-deep text-white py-3 rounded-bubbly font-bold transition"
+          className="w-full bg-gradient-to-r from-blue-300 to-blue-400 hover:from-blue-400 hover:to-blue-500 text-white py-3 rounded-full font-bold transition shadow-md"
         >
           Save
         </button>
       </div>
+
+      {/* Message Modal */}
+      {messageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 px-4">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-fadeIn border-2 border-blue-200">
+            <h2 className="text-lg font-bold mb-4 text-blue-700">
+              {messageModal.type === "success" ? "✅ Success" : "❌ Error"}
+            </h2>
+            <p className="mb-6 text-blue-600">{messageModal.text}</p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setMessageModal(null)}
+                className="px-4 py-2 bg-blue-400 text-white rounded-full hover:bg-blue-500 transition"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
