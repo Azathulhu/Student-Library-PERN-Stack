@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import api from "../api";
 import BookCard from "../components/BookCard";
 import { useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
+  const [carouselBooks, setCarouselBooks] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
@@ -15,11 +17,17 @@ export default function Dashboard() {
   const [confirmRequest, setConfirmRequest] = useState(null);
   const [messageModal, setMessageModal] = useState(null);
 
+  const carouselRef = useRef(null);
+
   const loadBooks = async (q = search || query, p = page) => {
     try {
       const { data } = await api.get(`/books/search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}`);
       setBooks(data.data);
       setTotal(data.total);
+
+      // Random books for carousel
+      const shuffled = [...data.data].sort(() => 0.5 - Math.random());
+      setCarouselBooks(shuffled.slice(0, Math.min(8, shuffled.length))); // take up to 8 random books
     } catch (err) {
       console.error(err);
     }
@@ -57,7 +65,7 @@ export default function Dashboard() {
       </h1>
 
       {/* Search Bar */}
-      <div className="mb-6 max-w-xl mx-auto relative">
+      <div className="mb-8 max-w-xl mx-auto relative">
         <input
           type="text"
           value={search}
@@ -69,6 +77,28 @@ export default function Dashboard() {
           Search for a book...
         </label>
       </div>
+
+      {/* Infinite Carousel */}
+      {carouselBooks.length > 0 && (
+        <div className="mb-10 overflow-hidden">
+          <motion.div
+            className="flex gap-6 cursor-grab"
+            drag="x"
+            dragConstraints={{ left: -carouselRef.current?.scrollWidth, right: 0 }}
+            whileTap={{ cursor: "grabbing" }}
+            ref={carouselRef}
+          >
+            {carouselBooks.concat(carouselBooks).map((b, idx) => (
+              <motion.div
+                key={`${b.id}-${idx}`}
+                className="min-w-[180px] md:min-w-[200px] lg:min-w-[220px] flex-shrink-0 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2"
+              >
+                <BookCard book={b} onRequest={request} />
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      )}
 
       {/* No books */}
       {books.length === 0 ? (
@@ -96,9 +126,7 @@ export default function Dashboard() {
             >
               Prev
             </button>
-            <span className="text-blue-700 font-medium">
-              Page {page} of {Math.ceil(total / limit)}
-            </span>
+            <span className="text-blue-700 font-medium">Page {page} of {Math.ceil(total / limit)}</span>
             <button
               disabled={page >= Math.ceil(total / limit)}
               onClick={() => setPage(page + 1)}
