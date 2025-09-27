@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import api from "../api";
 import BookCard from "../components/BookCard";
 import { useLocation } from "react-router-dom";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css"; 
-import "slick-carousel/slick/slick-theme.css";
 
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
@@ -19,13 +16,15 @@ export default function Dashboard() {
   const [confirmRequest, setConfirmRequest] = useState(null);
   const [messageModal, setMessageModal] = useState(null);
 
+  const carouselRef = useRef(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
   const loadBooks = async (q = search || query, p = page) => {
     try {
       const { data } = await api.get(`/books/search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}`);
       setBooks(data.data);
       setTotal(data.total);
 
-      // Pick 5 random books for carousel
       const shuffled = data.data.sort(() => 0.5 - Math.random());
       setCarouselBooks(shuffled.slice(0, 5));
     } catch (err) {
@@ -57,31 +56,22 @@ export default function Dashboard() {
     setConfirmRequest(bookId);
   };
 
-  // Carousel settings
-  const carouselSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: Math.min(3, carouselBooks.length),
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 4000,
-    centerMode: true,
-    centerPadding: "40px",
-    responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 2 } },
-      { breakpoint: 640, settings: { slidesToShow: 1 } },
-    ],
+  // Carousel navigation
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % carouselBooks.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + carouselBooks.length) % carouselBooks.length);
   };
 
   return (
     <div className="px-4 md:px-8 py-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
-      {/* Title */}
       <h1 className="text-4xl font-extrabold mb-6 text-center text-blue-600 drop-shadow-lg">
         📚 Explore Books
       </h1>
 
-      {/* Search Bar */}
+      {/* Search */}
       <div className="mb-10 max-w-xl mx-auto relative">
         <input
           type="text"
@@ -95,27 +85,46 @@ export default function Dashboard() {
         </label>
       </div>
 
-      {/* Carousel */}
+      {/* Tailwind Carousel */}
       {carouselBooks.length > 0 && (
-        <div className="mb-12">
-          <Slider {...carouselSettings}>
-            {carouselBooks.map((b) => (
-              <div key={b.id} className="px-2">
-                <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2">
-                  <BookCard book={b} onRequest={request} />
+        <div className="relative mb-12">
+          <div className="overflow-hidden">
+            <div
+              ref={carouselRef}
+              className="flex transition-transform duration-500"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {carouselBooks.map((b) => (
+                <div key={b.id} className="flex-none w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2">
+                  <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2">
+                    <BookCard book={b} onRequest={request} />
+                  </div>
                 </div>
-              </div>
-            ))}
-          </Slider>
+              ))}
+            </div>
+          </div>
+
+          {/* Controls */}
+          <button
+            onClick={prevSlide}
+            className="absolute top-1/2 -left-3 -translate-y-1/2 bg-blue-400 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg transition"
+          >
+            ◀
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute top-1/2 -right-3 -translate-y-1/2 bg-blue-400 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg transition"
+          >
+            ▶
+          </button>
         </div>
       )}
 
-      {/* No books */}
+      {/* Book Grid */}
       {books.length === 0 ? (
         <div className="text-blue-300 text-center mt-12">No books found.</div>
       ) : (
         <>
-          {/* Book Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {books.map((b) => (
               <div
