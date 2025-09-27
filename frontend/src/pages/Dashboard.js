@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import api from "../api";
 import BookCard from "../components/BookCard";
 import { useLocation } from "react-router-dom";
@@ -16,17 +16,16 @@ export default function Dashboard() {
   const [confirmRequest, setConfirmRequest] = useState(null);
   const [messageModal, setMessageModal] = useState(null);
 
-  const carouselRef = useRef(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
-
+  // Load books
   const loadBooks = async (q = search || query, p = page) => {
     try {
       const { data } = await api.get(`/books/search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}`);
       setBooks(data.data);
       setTotal(data.total);
 
+      // Add some random books for the carousel (shuffled)
       const shuffled = data.data.sort(() => 0.5 - Math.random());
-      setCarouselBooks(shuffled.slice(0, 5));
+      setCarouselBooks((prev) => [...prev, ...shuffled.slice(0, 5)]);
     } catch (err) {
       console.error(err);
     }
@@ -34,6 +33,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     setPage(1);
+    setCarouselBooks([]);
     loadBooks(search || query, 1);
   }, [search, query]);
 
@@ -56,15 +56,6 @@ export default function Dashboard() {
     setConfirmRequest(bookId);
   };
 
-  // Carousel navigation
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % carouselBooks.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + carouselBooks.length) % carouselBooks.length);
-  };
-
   return (
     <div className="px-4 md:px-8 py-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
       <h1 className="text-4xl font-extrabold mb-6 text-center text-blue-600 drop-shadow-lg">
@@ -85,40 +76,33 @@ export default function Dashboard() {
         </label>
       </div>
 
-      {/* Tailwind Carousel */}
+      {/* Infinite Scrolling Carousel */}
       {carouselBooks.length > 0 && (
-        <div className="relative mb-12">
-          <div className="overflow-hidden">
-            <div
-              ref={carouselRef}
-              className="flex transition-transform duration-500"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
-              {carouselBooks.map((b) => (
-                <div key={b.id} className="flex-none w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2">
-                  <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2">
-                    <BookCard book={b} onRequest={request} />
-                  </div>
+        <div className="overflow-hidden relative mb-12">
+          <div className="flex animate-scroll whitespace-nowrap">
+            {/* Duplicate for infinite scroll effect */}
+            {[...carouselBooks, ...carouselBooks].map((b, idx) => (
+              <div key={idx} className="inline-block w-48 mx-2">
+                <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2">
+                  <BookCard book={b} onRequest={request} />
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-
-          {/* Controls */}
-          <button
-            onClick={prevSlide}
-            className="absolute top-1/2 -left-3 -translate-y-1/2 bg-blue-400 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg transition"
-          >
-            ◀
-          </button>
-          <button
-            onClick={nextSlide}
-            className="absolute top-1/2 -right-3 -translate-y-1/2 bg-blue-400 hover:bg-blue-500 text-white p-2 rounded-full shadow-lg transition"
-          >
-            ▶
-          </button>
         </div>
       )}
+
+      {/* Tailwind Scroll Animation */}
+      <style>{`
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-scroll {
+          display: flex;
+          animation: scroll 60s linear infinite;
+        }
+      `}</style>
 
       {/* Book Grid */}
       {books.length === 0 ? (
