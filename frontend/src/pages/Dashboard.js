@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import api from "../api";
 import BookCard from "../components/BookCard";
 import { useLocation } from "react-router-dom";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
 
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
+  const [carouselBooks, setCarouselBooks] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
@@ -20,6 +24,10 @@ export default function Dashboard() {
       const { data } = await api.get(`/books/search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}`);
       setBooks(data.data);
       setTotal(data.total);
+
+      // Pick 5 random books for carousel
+      const shuffled = data.data.sort(() => 0.5 - Math.random());
+      setCarouselBooks(shuffled.slice(0, 5));
     } catch (err) {
       console.error(err);
     }
@@ -49,6 +57,23 @@ export default function Dashboard() {
     setConfirmRequest(bookId);
   };
 
+  // Carousel settings
+  const carouselSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: Math.min(3, carouselBooks.length),
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 4000,
+    centerMode: true,
+    centerPadding: "40px",
+    responsive: [
+      { breakpoint: 1024, settings: { slidesToShow: 2 } },
+      { breakpoint: 640, settings: { slidesToShow: 1 } },
+    ],
+  };
+
   return (
     <div className="px-4 md:px-8 py-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
       {/* Title */}
@@ -57,7 +82,7 @@ export default function Dashboard() {
       </h1>
 
       {/* Search Bar */}
-      <div className="mb-6 max-w-xl mx-auto relative">
+      <div className="mb-10 max-w-xl mx-auto relative">
         <input
           type="text"
           value={search}
@@ -69,6 +94,21 @@ export default function Dashboard() {
           Search for a book...
         </label>
       </div>
+
+      {/* Carousel */}
+      {carouselBooks.length > 0 && (
+        <div className="mb-12">
+          <Slider {...carouselSettings}>
+            {carouselBooks.map((b) => (
+              <div key={b.id} className="px-2">
+                <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2">
+                  <BookCard book={b} onRequest={request} />
+                </div>
+              </div>
+            ))}
+          </Slider>
+        </div>
+      )}
 
       {/* No books */}
       {books.length === 0 ? (
@@ -105,52 +145,6 @@ export default function Dashboard() {
               Next
             </button>
           </div>
-
-          {/* Message Modal */}
-          {messageModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 px-4">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-fadeIn border-2 border-blue-200">
-                <h2 className="text-lg font-bold mb-4 text-blue-700">
-                  {messageModal.type === "success" ? "✅ Success" : "❌ Error"}
-                </h2>
-                <p className="mb-6 text-blue-600">{messageModal.text}</p>
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => setMessageModal(null)}
-                    className="px-4 py-2 bg-blue-400 text-white rounded-full hover:bg-blue-500 transition"
-                  >
-                    OK
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Confirm Borrow Modal */}
-          {confirmRequest && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 px-4">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-fadeIn border-2 border-blue-200">
-                <h2 className="text-lg font-bold mb-4 text-blue-700">Confirm Borrow</h2>
-                <p className="mb-6 text-blue-600">
-                  Are you sure you want to send a borrow request for this book?
-                </p>
-                <div className="flex justify-end gap-3 flex-wrap">
-                  <button
-                    onClick={() => setConfirmRequest(null)}
-                    className="px-4 py-2 border rounded-full border-blue-300 hover:bg-blue-100 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => handleConfirmRequest(confirmRequest)}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-300 to-blue-400 text-white rounded-full hover:from-blue-400 hover:to-blue-500 transition"
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </>
       )}
     </div>
