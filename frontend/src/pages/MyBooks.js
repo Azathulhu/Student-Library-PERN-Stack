@@ -11,6 +11,7 @@ export default function MyBooks() {
   const limit = 5;
 
   const [messageModal, setMessageModal] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);
 
   const fetchBooks = async () => {
     try {
@@ -27,10 +28,9 @@ export default function MyBooks() {
 
   // Actions
   const doReturn = async (borrowId) => {
-    if (!window.confirm("Return this book?")) return;
     try {
       await api.post(`/books/return/${borrowId}`);
-      setMessageModal({ type: "success", text: "Returned." });
+      setMessageModal({ type: "success", text: "Book returned successfully." });
       fetchBooks();
     } catch (err) {
       setMessageModal({ type: "error", text: err?.response?.data?.error || "Failed to return book." });
@@ -38,7 +38,6 @@ export default function MyBooks() {
   };
 
   const cancelPending = async (borrowId) => {
-    if (!window.confirm("Cancel this pending request?")) return;
     try {
       await api.delete(`/books/cancel-pending/${borrowId}`);
       setMessageModal({ type: "success", text: "Pending request canceled." });
@@ -49,10 +48,9 @@ export default function MyBooks() {
   };
 
   const deleteReturned = async (borrowId) => {
-    if (!window.confirm("Delete this returned record?")) return;
     try {
       await api.delete(`/books/delete-returned/${borrowId}`);
-      setMessageModal({ type: "success", text: "Deleted returned record." });
+      setMessageModal({ type: "success", text: "Returned record deleted." });
       fetchBooks();
     } catch (err) {
       setMessageModal({ type: "error", text: err?.response?.data?.error || "Failed to delete returned record." });
@@ -83,6 +81,24 @@ export default function MyBooks() {
 
   const { data: shownBooks, total } = filterBooks(activeTab);
   const totalPages = Math.ceil(total / limit);
+
+  // Handle button click to open confirm modal
+  const handleActionClick = (type, borrowId) => {
+    setConfirmAction({ type, borrowId });
+  };
+
+  // Execute the confirmed action
+  const handleConfirm = () => {
+    if (!confirmAction) return;
+
+    const { type, borrowId } = confirmAction;
+
+    if (type === "return") doReturn(borrowId);
+    if (type === "cancel") cancelPending(borrowId);
+    if (type === "delete") deleteReturned(borrowId);
+
+    setConfirmAction(null);
+  };
 
   return (
     <div
@@ -155,7 +171,7 @@ export default function MyBooks() {
 
                 {activeTab === "pending" && (
                   <button
-                    onClick={() => cancelPending(i.borrow_id)}
+                    onClick={() => handleActionClick("cancel", i.borrow_id)}
                     className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
                   >
                     Cancel
@@ -163,7 +179,7 @@ export default function MyBooks() {
                 )}
                 {activeTab === "borrowed" && (
                   <button
-                    onClick={() => doReturn(i.borrow_id)}
+                    onClick={() => handleActionClick("return", i.borrow_id)}
                     className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
                   >
                     Return
@@ -171,7 +187,7 @@ export default function MyBooks() {
                 )}
                 {activeTab === "returned" && (
                   <button
-                    onClick={() => deleteReturned(i.borrow_id)}
+                    onClick={() => handleActionClick("delete", i.borrow_id)}
                     className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-bubbly font-bold transition"
                   >
                     Delete
@@ -213,6 +229,34 @@ export default function MyBooks() {
           </div>
         )}
       </div>
+
+      {/* Confirm Action Modal */}
+      {confirmAction && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 px-4">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-fadeIn border-2 border-blue-200">
+            <h2 className="text-lg font-bold mb-4 text-blue-700">Confirm Action</h2>
+            <p className="mb-6 text-blue-600">
+              {confirmAction.type === "return" && "Are you sure you want to return this book?"}
+              {confirmAction.type === "cancel" && "Are you sure you want to cancel this pending request?"}
+              {confirmAction.type === "delete" && "Are you sure you want to delete this returned record?"}
+            </p>
+            <div className="flex justify-end gap-3 flex-wrap">
+              <button
+                onClick={() => setConfirmAction(null)}
+                className="px-4 py-2 border rounded-full border-blue-300 hover:bg-blue-100 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirm}
+                className="px-4 py-2 bg-gradient-to-r from-blue-300 to-blue-400 text-white rounded-full hover:from-blue-400 hover:to-blue-500 transition"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Message Modal */}
       {messageModal && (
