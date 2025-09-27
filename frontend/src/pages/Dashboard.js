@@ -15,6 +15,31 @@ export default function Dashboard() {
   const [confirmRequest, setConfirmRequest] = useState(null);
   const [messageModal, setMessageModal] = useState(null);
 
+  // Messages and animation state
+  const messages = [
+    "Searching for your favorite book in our BCSHS library has never been easier!",
+    "Explore, Borrow, and Enjoy!",
+    "Find your next adventure here!",
+    "Discover hidden gems in our library!",
+  ];
+  const animations = [
+    "animate-fadeIn",
+    "animate-slideInLeft",
+    "animate-slideInRight",
+    "animate-bounce",
+    "animate-pulse",
+  ];
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [currentAnimation, setCurrentAnimation] = useState(animations[0]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+      setCurrentAnimation(animations[Math.floor(Math.random() * animations.length)]);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
   const loadBooks = async (q = search || query, p = page) => {
     try {
       const { data } = await api.get(`/books/search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}`);
@@ -51,6 +76,13 @@ export default function Dashboard() {
 
   return (
     <div className="px-4 md:px-8 py-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
+      {/* Scrolling/Animated Message */}
+      <div className="overflow-hidden whitespace-nowrap text-center mb-6">
+        <p className={`inline-block text-lg font-semibold text-blue-700 ${currentAnimation}`}>
+          {messages[currentMessageIndex]}
+        </p>
+      </div>
+
       {/* Title */}
       <h1 className="text-4xl font-extrabold mb-6 text-center text-blue-600 drop-shadow-lg">
         📚 Explore Books
@@ -70,12 +102,11 @@ export default function Dashboard() {
         </label>
       </div>
 
-      {/* No books */}
+      {/* Book Grid */}
       {books.length === 0 ? (
         <div className="text-blue-300 text-center mt-12">No books found.</div>
       ) : (
         <>
-          {/* Book Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {books.map((b) => (
               <div
