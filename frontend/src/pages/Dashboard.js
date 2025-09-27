@@ -15,28 +15,21 @@ export default function Dashboard() {
   const [confirmRequest, setConfirmRequest] = useState(null);
   const [messageModal, setMessageModal] = useState(null);
 
-  // Messages and animation state
+  // Scrolling messages
   const messages = [
-    "Searching for your favorite book in our BCSHS library has never been easier!",
-    "Explore, Borrow, and Enjoy!",
-    "Find your next adventure here!",
-    "Discover hidden gems in our library!",
+    "Searching for your favorite book in our BCSHS library has never been easier! 📚",
+    "Explore, Borrow, and Enjoy! 🌟",
+    "Find your next adventure here! 🏰",
+    "Discover hidden gems in our library! 💎",
   ];
-  const animations = [
-    "animate-fadeIn",
-    "animate-slideInLeft",
-    "animate-slideInRight",
-    "animate-bounce",
-    "animate-pulse",
-  ];
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-  const [currentAnimation, setCurrentAnimation] = useState(animations[0]);
 
+  const [scrollMessage, setScrollMessage] = useState(messages[0]);
+
+  // Change the message every few seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
-      setCurrentAnimation(animations[Math.floor(Math.random() * animations.length)]);
-    }, 4000);
+      setScrollMessage(messages[Math.floor(Math.random() * messages.length)]);
+    }, 6000); // change message every 6 seconds
     return () => clearInterval(interval);
   }, []);
 
@@ -76,11 +69,12 @@ export default function Dashboard() {
 
   return (
     <div className="px-4 md:px-8 py-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
-      {/* Scrolling/Animated Message */}
-      <div className="overflow-hidden whitespace-nowrap text-center mb-6">
-        <p className={`inline-block text-lg font-semibold text-blue-700 ${currentAnimation}`}>
-          {messages[currentMessageIndex]}
-        </p>
+      
+      {/* Scrolling Marquee Text */}
+      <div className="overflow-hidden relative whitespace-nowrap border-b-2 border-blue-200 mb-6">
+        <div className="inline-block animate-marquee py-2 text-blue-700 font-semibold text-lg">
+          {scrollMessage} &nbsp;&nbsp;&nbsp; {scrollMessage}
+        </div>
       </div>
 
       {/* Title */}
@@ -184,6 +178,21 @@ export default function Dashboard() {
           )}
         </>
       )}
+      
+      {/* Tailwind custom marquee animation */}
+      <style>
+        {`
+          @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+          }
+          .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 12s linear infinite;
+          }
+        `}
+      </style>
     </div>
   );
 }
