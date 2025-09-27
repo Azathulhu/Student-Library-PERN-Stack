@@ -5,7 +5,6 @@ import { useLocation } from "react-router-dom";
 
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
-  const [carouselBooks, setCarouselBooks] = useState([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
@@ -15,36 +14,6 @@ export default function Dashboard() {
 
   const [confirmRequest, setConfirmRequest] = useState(null);
   const [messageModal, setMessageModal] = useState(null);
-  const [animatedText, setAnimatedText] = useState("");
-
-  const marketingTexts = [
-    "Searching for your favorite book has never been easier!",
-    "Discover hidden gems in our collection 📚",
-    "Swipe through books you didn't know you needed!",
-    "Books you’ll love are just a scroll away!",
-    "Endless stories, infinite possibilities..."
-  ];
-
-  // Rotate marketing text every 4 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimatedText(marketingTexts[Math.floor(Math.random() * marketingTexts.length)]);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Fetch books for carousel (randomly)
-  const loadCarouselBooks = async () => {
-    try {
-      const { data } = await api.get(`/books/search?page=1&limit=100`);
-      if (data.data.length > 0) {
-        const shuffled = data.data.sort(() => 0.5 - Math.random());
-        setCarouselBooks(shuffled.slice(0, 10));
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const loadBooks = async (q = search || query, p = page) => {
     try {
@@ -59,7 +28,6 @@ export default function Dashboard() {
   useEffect(() => {
     setPage(1);
     loadBooks(search || query, 1);
-    loadCarouselBooks();
   }, [search, query]);
 
   useEffect(() => {
@@ -83,17 +51,13 @@ export default function Dashboard() {
 
   return (
     <div className="px-4 md:px-8 py-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
-      <h1 className="text-4xl font-extrabold mb-2 text-center text-blue-600 drop-shadow-lg">
+      {/* Title */}
+      <h1 className="text-4xl font-extrabold mb-6 text-center text-blue-600 drop-shadow-lg">
         📚 Explore Books
       </h1>
 
-      {/* Animated Marketing Text */}
-      <p className="text-center text-blue-500 font-semibold mb-6 animate-pulse">
-        {animatedText}
-      </p>
-
-      {/* Search */}
-      <div className="mb-10 max-w-xl mx-auto relative">
+      {/* Search Bar */}
+      <div className="mb-6 max-w-xl mx-auto relative">
         <input
           type="text"
           value={search}
@@ -106,42 +70,17 @@ export default function Dashboard() {
         </label>
       </div>
 
-      {/* Seamless Infinite Carousel */}
-      {carouselBooks.length > 0 && (
-        <div className="overflow-hidden relative mb-12">
-          <div className="flex w-max animate-scroll">
-            {[...carouselBooks, ...carouselBooks].map((b, idx) => (
-              <div key={idx} className="flex-none w-56 mx-4">
-                <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-4">
-                  <BookCard book={b} onRequest={request} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-scroll {
-          display: flex;
-          animation: scroll 30s linear infinite;
-        }
-      `}</style>
-
-      {/* Book Grid */}
+      {/* No books */}
       {books.length === 0 ? (
         <div className="text-blue-300 text-center mt-12">No books found.</div>
       ) : (
         <>
+          {/* Book Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {books.map((b) => (
               <div
                 key={b.id}
-                className="transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-4"
+                className="transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2"
               >
                 <BookCard book={b} onRequest={request} />
               </div>
@@ -157,7 +96,9 @@ export default function Dashboard() {
             >
               Prev
             </button>
-            <span className="text-blue-700 font-medium">Page {page} of {Math.ceil(total / limit)}</span>
+            <span className="text-blue-700 font-medium">
+              Page {page} of {Math.ceil(total / limit)}
+            </span>
             <button
               disabled={page >= Math.ceil(total / limit)}
               onClick={() => setPage(page + 1)}
@@ -166,6 +107,52 @@ export default function Dashboard() {
               Next
             </button>
           </div>
+
+          {/* Message Modal */}
+          {messageModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 px-4">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-fadeIn border-2 border-blue-200">
+                <h2 className="text-lg font-bold mb-4 text-blue-700">
+                  {messageModal.type === "success" ? "✅ Success" : "❌ Error"}
+                </h2>
+                <p className="mb-6 text-blue-600">{messageModal.text}</p>
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setMessageModal(null)}
+                    className="px-4 py-2 bg-blue-400 text-white rounded-full hover:bg-blue-500 transition"
+                  >
+                    OK
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Confirm Borrow Modal */}
+          {confirmRequest && (
+            <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 px-4">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-fadeIn border-2 border-blue-200">
+                <h2 className="text-lg font-bold mb-4 text-blue-700">Confirm Borrow</h2>
+                <p className="mb-6 text-blue-600">
+                  Are you sure you want to send a borrow request for this book?
+                </p>
+                <div className="flex justify-end gap-3 flex-wrap">
+                  <button
+                    onClick={() => setConfirmRequest(null)}
+                    className="px-4 py-2 border rounded-full border-blue-300 hover:bg-blue-100 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleConfirmRequest(confirmRequest)}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-300 to-blue-400 text-white rounded-full hover:from-blue-400 hover:to-blue-500 transition"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
