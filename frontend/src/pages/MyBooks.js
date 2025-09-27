@@ -10,12 +10,14 @@ export default function MyBooks() {
   const [pages, setPages] = useState({ pending: 1, borrowed: 1, returned: 1 });
   const limit = 5;
 
+  const [messageModal, setMessageModal] = useState(null);
+
   const fetchBooks = async () => {
     try {
       const { data } = await api.get("/books/my");
       setItems(data);
     } catch (err) {
-      console.error(err);
+      setMessageModal({ type: "error", text: err?.response?.data?.error || "Failed to fetch books." });
     }
   };
 
@@ -28,10 +30,10 @@ export default function MyBooks() {
     if (!window.confirm("Return this book?")) return;
     try {
       await api.post(`/books/return/${borrowId}`);
-      alert("Returned.");
+      setMessageModal({ type: "success", text: "Returned." });
       fetchBooks();
     } catch (err) {
-      alert(err?.response?.data?.error || "Failed");
+      setMessageModal({ type: "error", text: err?.response?.data?.error || "Failed to return book." });
     }
   };
 
@@ -39,10 +41,10 @@ export default function MyBooks() {
     if (!window.confirm("Cancel this pending request?")) return;
     try {
       await api.delete(`/books/cancel-pending/${borrowId}`);
-      alert("Pending request canceled.");
+      setMessageModal({ type: "success", text: "Pending request canceled." });
       fetchBooks();
     } catch (err) {
-      alert(err?.response?.data?.error || "Failed");
+      setMessageModal({ type: "error", text: err?.response?.data?.error || "Failed to cancel request." });
     }
   };
 
@@ -50,10 +52,10 @@ export default function MyBooks() {
     if (!window.confirm("Delete this returned record?")) return;
     try {
       await api.delete(`/books/delete-returned/${borrowId}`);
-      alert("Deleted returned record.");
+      setMessageModal({ type: "success", text: "Deleted returned record." });
       fetchBooks();
     } catch (err) {
-      alert(err?.response?.data?.error || "Failed");
+      setMessageModal({ type: "error", text: err?.response?.data?.error || "Failed to delete returned record." });
     }
   };
 
@@ -211,6 +213,26 @@ export default function MyBooks() {
           </div>
         )}
       </div>
+
+      {/* Message Modal */}
+      {messageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 px-4">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-fadeIn border-2 border-blue-200">
+            <h2 className="text-lg font-bold mb-4 text-blue-700">
+              {messageModal.type === "success" ? "✅ Success" : "❌ Error"}
+            </h2>
+            <p className="mb-6 text-blue-600">{messageModal.text}</p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setMessageModal(null)}
+                className="px-4 py-2 bg-blue-400 text-white rounded-full hover:bg-blue-500 transition"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
