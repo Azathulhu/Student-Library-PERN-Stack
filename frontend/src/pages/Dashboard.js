@@ -33,18 +33,14 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch all books for carousel (from multiple pages)
+  // Fetch all books for carousel randomly
   const loadAllBooksForCarousel = async () => {
     try {
-      let allBooks = [];
-      const totalPages = 3; // adjust how many pages to pull for randomness
-      for (let p = 1; p <= totalPages; p++) {
-        const { data } = await api.get(`/books/search?page=${p}&limit=${limit}`);
-        allBooks = [...allBooks, ...data.data];
+      const { data } = await api.get(`/books/search?page=1&limit=100`);
+      if (data.data.length > 0) {
+        const shuffled = data.data.sort(() => 0.5 - Math.random());
+        setCarouselBooks(shuffled.slice(0, 10)); // pick 10 random books
       }
-      // Shuffle and pick 10 random books
-      const shuffled = allBooks.sort(() => 0.5 - Math.random());
-      setCarouselBooks(shuffled.slice(0, 10));
     } catch (err) {
       console.error(err);
     }
@@ -110,13 +106,13 @@ export default function Dashboard() {
         </label>
       </div>
 
-      {/* Infinite Scrolling Carousel */}
+      {/* Infinite Smooth Carousel */}
       {carouselBooks.length > 0 && (
         <div className="overflow-hidden relative mb-12">
           <div className="flex animate-scroll whitespace-nowrap">
             {[...carouselBooks, ...carouselBooks].map((b, idx) => (
-              <div key={idx} className="inline-block w-44 sm:w-48 md:w-52 lg:w-56 mx-3">
-                <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2">
+              <div key={idx} className="inline-block w-56 mx-4">
+                <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-4">
                   <BookCard book={b} onRequest={request} />
                 </div>
               </div>
@@ -133,7 +129,7 @@ export default function Dashboard() {
         }
         .animate-scroll {
           display: flex;
-          animation: scroll 40s linear infinite;
+          animation: scroll 25s linear infinite; /* faster smooth scroll */
         }
       `}</style>
 
@@ -146,7 +142,7 @@ export default function Dashboard() {
             {books.map((b) => (
               <div
                 key={b.id}
-                className="transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2"
+                className="transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-4"
               >
                 <BookCard book={b} onRequest={request} />
               </div>
