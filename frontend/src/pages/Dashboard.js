@@ -25,14 +25,17 @@ export default function Dashboard() {
     }
   };
 
+  // Load books on search or URL query change
   useEffect(() => {
     setPage(1);
     loadBooks(search || query, 1);
-    window.scrollTo({ top: 0, behavior: "smooth" }); // scroll to top when search changes
   }, [search, query]);
 
+  // Load books when page changes
   useEffect(() => {
     loadBooks(search || query, page);
+    // Scroll to top after page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
 
   const handleConfirmRequest = async (bookId) => {
@@ -48,23 +51,6 @@ export default function Dashboard() {
 
   const request = async (bookId) => {
     setConfirmRequest(bookId);
-  };
-
-  // Proper updater functions for Prev/Next
-  const goToNextPage = () => {
-    setPage(prev => {
-      const next = prev + 1;
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return next;
-    });
-  };
-
-  const goToPrevPage = () => {
-    setPage(prev => {
-      const next = prev - 1;
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return next;
-    });
   };
 
   return (
@@ -110,7 +96,7 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
             <button
               disabled={page === 1}
-              onClick={goToPrevPage}
+              onClick={() => setPage(prev => prev - 1)}
               className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white font-semibold shadow hover:from-blue-400 hover:to-blue-500 transition disabled:opacity-50"
             >
               Prev
@@ -118,7 +104,7 @@ export default function Dashboard() {
             <span className="text-blue-700 font-medium">Page {page} of {Math.ceil(total / limit)}</span>
             <button
               disabled={page >= Math.ceil(total / limit)}
-              onClick={goToNextPage}
+              onClick={() => setPage(prev => prev + 1)}
               className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white font-semibold shadow hover:from-blue-400 hover:to-blue-500 transition disabled:opacity-50"
             >
               Next
