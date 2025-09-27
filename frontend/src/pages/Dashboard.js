@@ -25,14 +25,17 @@ export default function Dashboard() {
     }
   };
 
+  // Scroll to top whenever page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    loadBooks(search || query, page);
+  }, [page]);
+
+  // Reset page to 1 whenever search/query changes
   useEffect(() => {
     setPage(1);
     loadBooks(search || query, 1);
   }, [search, query]);
-
-  useEffect(() => {
-    loadBooks(search || query, page);
-  }, [page]);
 
   const handleConfirmRequest = async (bookId) => {
     try {
@@ -92,10 +95,7 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
             <button
               disabled={page === 1}
-              onClick={() => {
-                setPage(page - 1);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
+              onClick={() => setPage(page - 1)}
               className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white font-semibold shadow hover:from-blue-400 hover:to-blue-500 transition disabled:opacity-50"
             >
               Prev
@@ -103,10 +103,7 @@ export default function Dashboard() {
             <span className="text-blue-700 font-medium">Page {page} of {Math.ceil(total / limit)}</span>
             <button
               disabled={page >= Math.ceil(total / limit)}
-              onClick={() => {
-                setPage(page + 1);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
+              onClick={() => setPage(page + 1)}
               className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white font-semibold shadow hover:from-blue-400 hover:to-blue-500 transition disabled:opacity-50"
             >
               Next
