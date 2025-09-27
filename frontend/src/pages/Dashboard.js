@@ -15,17 +15,46 @@ export default function Dashboard() {
 
   const [confirmRequest, setConfirmRequest] = useState(null);
   const [messageModal, setMessageModal] = useState(null);
+  const [animatedText, setAnimatedText] = useState("");
 
-  // Load books
+  const marketingTexts = [
+    "Searching for your favorite book has never been easier!",
+    "Discover hidden gems in our collection 📚",
+    "Swipe through books you didn't know you needed!",
+    "Books you’ll love are just a scroll away!",
+    "Endless stories, infinite possibilities..."
+  ];
+
+  // Rotate marketing text every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimatedText(marketingTexts[Math.floor(Math.random() * marketingTexts.length)]);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch all books for carousel (from multiple pages)
+  const loadAllBooksForCarousel = async () => {
+    try {
+      let allBooks = [];
+      const totalPages = 3; // adjust how many pages to pull for randomness
+      for (let p = 1; p <= totalPages; p++) {
+        const { data } = await api.get(`/books/search?page=${p}&limit=${limit}`);
+        allBooks = [...allBooks, ...data.data];
+      }
+      // Shuffle and pick 10 random books
+      const shuffled = allBooks.sort(() => 0.5 - Math.random());
+      setCarouselBooks(shuffled.slice(0, 10));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const loadBooks = async (q = search || query, p = page) => {
     try {
       const { data } = await api.get(`/books/search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}`);
       setBooks(data.data);
       setTotal(data.total);
-
-      // Add some random books for the carousel (shuffled)
-      const shuffled = data.data.sort(() => 0.5 - Math.random());
-      setCarouselBooks((prev) => [...prev, ...shuffled.slice(0, 5)]);
     } catch (err) {
       console.error(err);
     }
@@ -33,8 +62,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     setPage(1);
-    setCarouselBooks([]);
     loadBooks(search || query, 1);
+    loadAllBooksForCarousel();
   }, [search, query]);
 
   useEffect(() => {
@@ -58,9 +87,14 @@ export default function Dashboard() {
 
   return (
     <div className="px-4 md:px-8 py-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
-      <h1 className="text-4xl font-extrabold mb-6 text-center text-blue-600 drop-shadow-lg">
+      <h1 className="text-4xl font-extrabold mb-2 text-center text-blue-600 drop-shadow-lg">
         📚 Explore Books
       </h1>
+
+      {/* Animated Marketing Text */}
+      <p className="text-center text-blue-500 font-semibold mb-6 animate-pulse">
+        {animatedText}
+      </p>
 
       {/* Search */}
       <div className="mb-10 max-w-xl mx-auto relative">
@@ -80,9 +114,8 @@ export default function Dashboard() {
       {carouselBooks.length > 0 && (
         <div className="overflow-hidden relative mb-12">
           <div className="flex animate-scroll whitespace-nowrap">
-            {/* Duplicate for infinite scroll effect */}
             {[...carouselBooks, ...carouselBooks].map((b, idx) => (
-              <div key={idx} className="inline-block w-48 mx-2">
+              <div key={idx} className="inline-block w-44 sm:w-48 md:w-52 lg:w-56 mx-3">
                 <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-2">
                   <BookCard book={b} onRequest={request} />
                 </div>
@@ -100,7 +133,7 @@ export default function Dashboard() {
         }
         .animate-scroll {
           display: flex;
-          animation: scroll 60s linear infinite;
+          animation: scroll 40s linear infinite;
         }
       `}</style>
 
