@@ -268,8 +268,6 @@ export default function Admin() {
             className="mb-6 max-w-5xl mx-auto"
           >
             {/* Pending Requests Section */}
-            {/* Your existing Pending Requests JSX goes here */}
-            {/* Pending Requests with Search & Pagination */}
             <section className="mb-6 max-w-5xl mx-auto">
               <h2 className="font-bold text-bubbly-deep mb-3 text-lg">Pending Requests</h2>
               <div className="flex flex-col sm:flex-row gap-2 mb-4">
@@ -291,7 +289,7 @@ export default function Admin() {
                     <div>
                       <div className="font-bold">{p.title}</div>
                       <div className="text-xs text-bubbly-dark">User: {p.name}</div>
-                      <div className="text-xs text-bubbly-dark">LRN: {p.lrn}
+                      <div className="text-xs text-bubbly-dark">LRN: {p.lrn}</div>
                       <div className="text-xs text-bubbly-dark">Requested: {new Date(p.requested_at).toLocaleString()}</div>
                     </div>
                     <div className="flex items-center justify-center gap-2 mt-2">
