@@ -33,13 +33,13 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch all books for carousel randomly
-  const loadAllBooksForCarousel = async () => {
+  // Fetch books for carousel (randomly)
+  const loadCarouselBooks = async () => {
     try {
       const { data } = await api.get(`/books/search?page=1&limit=100`);
       if (data.data.length > 0) {
         const shuffled = data.data.sort(() => 0.5 - Math.random());
-        setCarouselBooks(shuffled.slice(0, 10)); // pick 10 random books
+        setCarouselBooks(shuffled.slice(0, 10));
       }
     } catch (err) {
       console.error(err);
@@ -59,7 +59,7 @@ export default function Dashboard() {
   useEffect(() => {
     setPage(1);
     loadBooks(search || query, 1);
-    loadAllBooksForCarousel();
+    loadCarouselBooks();
   }, [search, query]);
 
   useEffect(() => {
@@ -106,12 +106,12 @@ export default function Dashboard() {
         </label>
       </div>
 
-      {/* Infinite Smooth Carousel */}
+      {/* Seamless Infinite Carousel */}
       {carouselBooks.length > 0 && (
         <div className="overflow-hidden relative mb-12">
-          <div className="flex animate-scroll whitespace-nowrap">
+          <div className="flex w-max animate-scroll">
             {[...carouselBooks, ...carouselBooks].map((b, idx) => (
-              <div key={idx} className="inline-block w-56 mx-4">
+              <div key={idx} className="flex-none w-56 mx-4">
                 <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 p-4">
                   <BookCard book={b} onRequest={request} />
                 </div>
@@ -121,7 +121,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Tailwind Scroll Animation */}
       <style>{`
         @keyframes scroll {
           0% { transform: translateX(0); }
@@ -129,7 +128,7 @@ export default function Dashboard() {
         }
         .animate-scroll {
           display: flex;
-          animation: scroll 25s linear infinite; /* faster smooth scroll */
+          animation: scroll 30s linear infinite;
         }
       `}</style>
 
