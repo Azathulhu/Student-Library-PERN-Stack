@@ -15,24 +15,6 @@ export default function Dashboard() {
   const [confirmRequest, setConfirmRequest] = useState(null);
   const [messageModal, setMessageModal] = useState(null);
 
-  // Messages
-  const messages = [
-    "Searching for your favorite book in our BCSHS library has never been easier! 📚",
-    "Explore, Borrow, and Enjoy! 🌟",
-    "Find your next adventure here! 🏰",
-    "Discover hidden gems in our library! 💎",
-  ];
-
-  const [scrollMessage, setScrollMessage] = useState(messages[0]);
-
-  // Randomly change message every 6 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setScrollMessage(messages[Math.floor(Math.random() * messages.length)]);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
-
   const loadBooks = async (q = search || query, p = page) => {
     try {
       const { data } = await api.get(`/books/search?q=${encodeURIComponent(q)}&page=${p}&limit=${limit}`);
@@ -70,14 +52,6 @@ export default function Dashboard() {
   return (
     <div className="px-4 md:px-8 py-6 bg-gradient-to-b from-blue-50 to-blue-100 min-h-screen">
 
-      {/* Smooth Scrolling Marquee */}
-      <div className="overflow-hidden border-b-2 border-blue-200 mb-6 relative h-10">
-        <div className="inline-flex whitespace-nowrap animate-marquee gap-10">
-          <span className="text-blue-700 font-semibold text-lg">{scrollMessage}</span>
-          <span className="text-blue-700 font-semibold text-lg">{scrollMessage}</span>
-        </div>
-      </div>
-
       {/* Title */}
       <h1 className="text-4xl font-extrabold mb-6 text-center text-blue-600 drop-shadow-lg">
         📚 Explore Books
@@ -97,11 +71,12 @@ export default function Dashboard() {
         </label>
       </div>
 
-      {/* Book Grid */}
+      {/* No books */}
       {books.length === 0 ? (
         <div className="text-blue-300 text-center mt-12">No books found.</div>
       ) : (
         <>
+          {/* Book Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {books.map((b) => (
               <div
@@ -179,21 +154,6 @@ export default function Dashboard() {
           )}
         </>
       )}
-
-      {/* Tailwind custom marquee animation */}
-      <style>
-        {`
-          @keyframes marquee {
-            0% { transform: translateX(0%); }
-            100% { transform: translateX(-50%); }
-          }
-          .animate-marquee {
-            display: inline-flex;
-            gap: 5rem;
-            animation: marquee 15s linear infinite;
-          }
-        `}
-      </style>
     </div>
   );
 }
