@@ -28,6 +28,7 @@ export default function Dashboard() {
   useEffect(() => {
     setPage(1);
     loadBooks(search || query, 1);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // scroll to top when search changes
   }, [search, query]);
 
   useEffect(() => {
@@ -49,10 +50,21 @@ export default function Dashboard() {
     setConfirmRequest(bookId);
   };
 
-  // Helper to go to next/prev page and scroll to top
-  const goToPage = (newPage) => {
-    setPage(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  // Proper updater functions for Prev/Next
+  const goToNextPage = () => {
+    setPage(prev => {
+      const next = prev + 1;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return next;
+    });
+  };
+
+  const goToPrevPage = () => {
+    setPage(prev => {
+      const next = prev - 1;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return next;
+    });
   };
 
   return (
@@ -98,7 +110,7 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-8">
             <button
               disabled={page === 1}
-              onClick={() => goToPage(page - 1)}
+              onClick={goToPrevPage}
               className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white font-semibold shadow hover:from-blue-400 hover:to-blue-500 transition disabled:opacity-50"
             >
               Prev
@@ -106,7 +118,7 @@ export default function Dashboard() {
             <span className="text-blue-700 font-medium">Page {page} of {Math.ceil(total / limit)}</span>
             <button
               disabled={page >= Math.ceil(total / limit)}
-              onClick={() => goToPage(page + 1)}
+              onClick={goToNextPage}
               className="px-5 py-2 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white font-semibold shadow hover:from-blue-400 hover:to-blue-500 transition disabled:opacity-50"
             >
               Next
