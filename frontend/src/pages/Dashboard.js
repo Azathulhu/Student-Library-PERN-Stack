@@ -42,7 +42,7 @@ export default function Dashboard() {
     try {
       await api.post(`/books/request/${bookId}`);
       setConfirmRequest(null);
-      setMessageModal({ type: "success", text: "Borrow request sent. Wait for admin approval." });
+      setMessageModal({ type: "success", text: "Borrow request sent! Wait for admin approval." });
     } catch (err) {
       setConfirmRequest(null);
       setMessageModal({ type: "error", text: err?.response?.data?.error || "Failed to request." });
